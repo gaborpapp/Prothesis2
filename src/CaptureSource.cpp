@@ -90,11 +90,13 @@ void CaptureSource::setupParams()
 	mndl::kit::params::PInterfaceGl::save();
 	mParams.clear();
 
-	vector< string > enumNames = { "Recording", "Capture"
+	vector< string > enumNames;
+	enumNames.push_back( "Recording" );
+	enumNames.push_back( "Capture" );
 #ifdef CAPTURE_1394
-		, "Capture1394"
+	enumNames.push_back( "Capture1394" );
 #endif
-	};
+
 	mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_CAPTURE );
 
 	mParams.addSeparator();
