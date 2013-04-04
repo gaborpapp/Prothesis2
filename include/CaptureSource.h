@@ -28,6 +28,7 @@
 #ifdef CAPTURE_1394
 #include "Capture1394PParams.h"
 #endif
+#include "CiNI.h"
 
 #include "mndlkit/params/PParams.h"
 
@@ -56,6 +57,7 @@ class CaptureSource
 		{
 			SOURCE_RECORDING = 0,
 			SOURCE_CAPTURE,
+			SOURCE_KINECT,
 			SOURCE_CAPTURE1394
 		};
 
@@ -78,10 +80,16 @@ class CaptureSource
 		// capture1394
 		mndl::Capture1394PParamsRef mCapture1394PParams;
 #endif
+		// openni
+		mndl::ni::OpenNI mNI;
+		std::thread mKinectThread;
+		std::mutex mKinectMutex;
+		std::string mKinectProgress;
+		void openKinect( const ci::fs::path &path = ci::fs::path() );
 
 		// params
-		mndl::kit::params::PInterfaceGl mParams;
-		mndl::kit::params::PInterfaceGl mCaptureParams;
+		mndl::params::PInterfaceGl mParams;
+		mndl::params::PInterfaceGl mCaptureParams;
 };
 
 } // namespace mndl;

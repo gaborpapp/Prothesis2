@@ -74,20 +74,26 @@ void CaptureSource::setup()
 		mCaptures.push_back( ci::CaptureRef() );
 	}
 
-	mParams = mndl::kit::params::PInterfaceGl( "Capture Source", ci::Vec2i( 310, 90 ), ci::Vec2i( 16, 326 ) );
+	mParams = mndl::params::PInterfaceGl( "Capture Source", ci::Vec2i( 310, 90 ), ci::Vec2i( 16, 326 ) );
 	mParams.addPersistentSizeAndPosition();
-	mCaptureParams = mndl::kit::params::PInterfaceGl( "Capture", ci::Vec2i( 310, 90 ), ci::Vec2i( 16, 432 ) );
+	mCaptureParams = mndl::params::PInterfaceGl( "Capture", ci::Vec2i( 310, 90 ), ci::Vec2i( 16, 432 ) );
 	mCaptureParams.addPersistentSizeAndPosition();
 	mCaptureParams.addPersistentParam( "Camera", mDeviceNames, &mCurrentCapture, 0 );
 	if ( mCurrentCapture >= (int)mCaptures.size() )
 		mCurrentCapture = 0;
+	mKinectProgress = "Connecting...\0\0\0\0\0\0\0\0\0";
+	mCaptureParams.addParam( "Kinect", &mKinectProgress, "", true );
+
+	// OpenNI
+	mKinectThread = thread( bind( &CaptureSource::openKinect, this, ci::fs::path() ) );
+
 	setupParams();
 
 }
 
 void CaptureSource::setupParams()
 {
-	mndl::kit::params::PInterfaceGl::save();
+	mndl::params::PInterfaceGl::save();
 	mParams.clear();
 
 	vector< string > enumNames;
@@ -96,17 +102,59 @@ void CaptureSource::setupParams()
 #ifdef CAPTURE_1394
 	enumNames.push_back( "Capture1394" );
 #endif
+	enumNames.push_back( "Kinect" );
 
-	mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_CAPTURE );
+	// FIXME: other capture devices don't work when kinect is connected?
+	//mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_CAPTURE );
+	mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_KINECT, "", true );
 
 	mParams.addSeparator();
 	if ( mSource == SOURCE_RECORDING )
 	{
 		mParams.addButton( "Play video", std::bind( &CaptureSource::playVideoCB, this ) );
 	}
+#if 0 // saving not implemented, can cause problems with checkNewFrame
 	else
 	{
 		mParams.addButton( "Save video", std::bind( &CaptureSource::saveVideoCB, this ) );
+	}
+#endif
+}
+
+void CaptureSource::openKinect( const ci::fs::path &path )
+{
+	try
+	{
+		mndl::ni::OpenNI kinect;
+		mndl::ni::OpenNI::Options options;
+		options.enableDepth( true ).enableUserTracker( false );
+
+		if ( path.empty() )
+			kinect = mndl::ni::OpenNI( mndl::ni::OpenNI::Device(), options );
+		else
+			kinect = mndl::ni::OpenNI( path );
+		{
+			std::lock_guard< std::mutex > lock( mKinectMutex );
+			mNI = kinect;
+		}
+	}
+	catch ( ... )
+	{
+		if ( path.empty() )
+			mKinectProgress = "No device detected";
+		else
+			mKinectProgress = "Recording not found";
+		return;
+	}
+
+	if ( path.empty() )
+		mKinectProgress = "Connected";
+	else
+		mKinectProgress = "Recording loaded";
+
+	{
+		std::lock_guard< std::mutex > lock( mKinectMutex );
+		mNI.start();
 	}
 }
 
@@ -118,6 +166,11 @@ void CaptureSource::update()
 	// change gui buttons if switched between capture and playback
 	if ( lastSource != mSource )
 	{
+		if ( ( lastSource == SOURCE_KINECT ) && mNI )
+			mNI.stop();
+		if ( ( mSource == SOURCE_KINECT ) && mNI )
+			mNI.start();
+
 		setupParams();
 		lastSource = mSource;
 	}
@@ -166,6 +219,10 @@ void CaptureSource::shutdown()
 {
 	if ( ( mSource == SOURCE_CAPTURE ) && ( mCaptures[ mCurrentCapture ] ) )
 		mCaptures[ mCurrentCapture ]->stop();
+
+	mKinectThread.join();
+	if ( mNI )
+		mNI.stop();
 }
 
 bool CaptureSource::isCapturing() const
@@ -173,7 +230,8 @@ bool CaptureSource::isCapturing() const
 	switch ( mSource )
 	{
 		case SOURCE_CAPTURE:
-			return mCaptures[ mCurrentCapture ].get() != 0;
+			return ( mCaptures[ mCurrentCapture ].get() != 0 ) &&
+				   ( mCaptures[ mCurrentCapture ]->isCapturing() );
 			break;
 
 #ifdef CAPTURE_1394
@@ -184,6 +242,10 @@ bool CaptureSource::isCapturing() const
 
 		case SOURCE_RECORDING:
 			return mMovie;
+			break;
+
+		case SOURCE_KINECT:
+			return mNI && mNI.isCapturing();
 			break;
 
 		default:
@@ -207,8 +269,14 @@ bool CaptureSource::checkNewFrame()
 #endif
 
 		case SOURCE_RECORDING:
-			return mMovie.checkNewFrame();
+			return mMovie && mMovie.checkNewFrame();
 			break;
+
+		case SOURCE_KINECT:
+		{
+			return mNI && mNI.checkNewVideoFrame();
+			break;
+		}
 
 		default:
 			return false;
@@ -232,6 +300,10 @@ int32_t CaptureSource::getWidth() const
 
 		case SOURCE_RECORDING:
 			return mMovie.getWidth();
+			break;
+
+		case SOURCE_KINECT:
+			return 640;
 			break;
 
 		default:
@@ -258,6 +330,10 @@ int32_t CaptureSource::getHeight() const
 			return mMovie.getHeight();
 			break;
 
+		case SOURCE_KINECT:
+			return 480;
+			break;
+
 		default:
 			return 0;
 			break;
@@ -281,6 +357,16 @@ ci::Surface8u CaptureSource::getSurface()
 		case SOURCE_RECORDING:
 			return mMovie.getSurface();
 			break;
+
+		case SOURCE_KINECT:
+		{
+			std::lock_guard< std::mutex > lock( mKinectMutex );
+			if ( mNI )
+				return mNI.getVideoImage();
+			else
+				return ci::Surface8u();
+			break;
+		}
 
 		default:
 			return ci::Surface8u();
@@ -316,11 +402,17 @@ void CaptureSource::saveVideoCB()
 		{
 			size = mCaptures[ mCurrentCapture ]->getSize();
 		}
-		else // SOURCE_CAPTURE1394
+		else
+		if ( mSource == SOURCE_CAPTURE1394 )
 		{
 #ifdef CAPTURE_1394
 			size = mCapture1394PParams->getCurrentCaptureRef()->getSize();
 #endif
+		}
+		else
+		if ( mSource == SOURCE_KINECT )
+		{
+			size = ci::Vec2i( 640, 480 );
 		}
 
 		mMovieWriter = ci::qtime::MovieWriter( appPath /

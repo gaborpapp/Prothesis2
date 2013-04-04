@@ -47,7 +47,7 @@ class Prothesis2App : public AppBasic
 		void draw();
 
 	private:
-		mndl::kit::params::PInterfaceGl mParams;
+		mndl::params::PInterfaceGl mParams;
 
 		float mFps;
 		bool mVerticalSyncEnabled;
@@ -103,8 +103,8 @@ void Prothesis2App::prepareSettings( Settings *settings )
 
 void Prothesis2App::setup()
 {
-	mndl::kit::params::PInterfaceGl::load( "params.xml" );
-	mParams = mndl::kit::params::PInterfaceGl( "Parameters", Vec2i( 310, 300 ), Vec2i( 16, 16 ) );
+	mndl::params::PInterfaceGl::load( "params.xml" );
+	mParams = mndl::params::PInterfaceGl( "Parameters", Vec2i( 310, 300 ), Vec2i( 16, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
@@ -172,6 +172,12 @@ void Prothesis2App::update()
 	mCaptureSource.update();
 
 	// optical flow
+	/*
+	bool isCapturing = mCaptureSource.isCapturing();
+	bool newFrame = mCaptureSource.checkNewFrame();
+	app::console() << "update " << isCapturing << " " << newFrame << endl;
+	if ( isCapturing && newFrame )
+	*/
 	if ( mCaptureSource.isCapturing() && mCaptureSource.checkNewFrame() )
 	{
 		Surface8u captSurf( Channel8u( mCaptureSource.getSurface() ) );
@@ -351,13 +357,13 @@ void Prothesis2App::draw()
 		}
 	}
 
-	mndl::kit::params::PInterfaceGl::draw();
+	mndl::params::PInterfaceGl::draw();
 }
 
 void Prothesis2App::shutdown()
 {
 	mCaptureSource.shutdown();
-	mndl::kit::params::PInterfaceGl::save();
+	mndl::params::PInterfaceGl::save();
 }
 
 void Prothesis2App::keyDown( KeyEvent event )
@@ -381,7 +387,7 @@ void Prothesis2App::keyDown( KeyEvent event )
 			break;
 
 		case KeyEvent::KEY_s:
-			mndl::kit::params::PInterfaceGl::showAllParams( !mParams.isVisible() );
+			mndl::params::PInterfaceGl::showAllParams( !mParams.isVisible() );
 			if ( isFullScreen() )
 			{
 				if ( mParams.isVisible() )
