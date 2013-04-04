@@ -48,7 +48,7 @@ class SkelMeshApp : public AppBasic
 		params::InterfaceGl mParams;
 
 		float mFps;
-		bool mVerticalSyncEnabled = false;
+		bool mVerticalSyncEnabled;
 
 		mndl::ni::OpenNI mNI;
 		mndl::ni::UserTracker mNIUserTracker;
@@ -88,6 +88,8 @@ void SkelMeshApp::prepareSettings( Settings *settings )
 
 void SkelMeshApp::setup()
 {
+	mVerticalSyncEnabled = false;
+
 	mParams = params::InterfaceGl( "Parameters", Vec2i( 200, 300 ) );
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addParam( "Vertical sync", &mVerticalSyncEnabled );
