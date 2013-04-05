@@ -94,13 +94,17 @@ void SkelMeshApp::setup()
 
 	try
 	{
-		//mNI = ni::OpenNI( ni::OpenNI::Device() );
+//#define KINECT_USE_RECORDING
+#ifndef KINECT_USE_RECORDING
+		mNI = mndl::ni::OpenNI( mndl::ni::OpenNI::Device() );
+#else
 		fs::path path = getAppPath();
 #ifdef CINDER_MAC
 		path /= "/../";
 #endif
 		path /= "captured-130404.oni";
 		mNI = mndl::ni::OpenNI( path );
+#endif
 	}
 	catch ( ... )
 	{
@@ -120,7 +124,7 @@ void SkelMeshApp::setup()
 
 	mStoredPositions = 0;
 	mCurrentPosition = 0;
-	mMaxPositions = 128;
+	mMaxPositions = 64;
 	mPositions.resize( mMaxPositions );
 	/*
 	for ( int i = 0; i < mMaxPositions; i++ )
@@ -225,7 +229,7 @@ void SkelMeshApp::draw()
 	size_t currentId = 0;
 	for ( int e = 0; e < sizeof( edges ) / sizeof( edges[ 0 ] ); e++ )
 	{
-		for ( int ii = mCurrentPosition - mStoredPositions; ii < mCurrentPosition; ii++ )
+		for ( int ii = mCurrentPosition - mStoredPositions + 1; ii < mCurrentPosition; ii++ )
 		{
 			int current = ii;
 			int last = ii - 1;
@@ -258,13 +262,17 @@ void SkelMeshApp::draw()
 				mesh.appendNormal( normal );
 				mesh.appendNormal( normal );
 				mesh.appendNormal( normal );
+				Color c( normal.x, normal.y, normal.z );
+				mesh.appendColorRgb( c );
+				mesh.appendColorRgb( c );
+				mesh.appendColorRgb( c );
+				mesh.appendColorRgb( c );
 			}
 		}
 	}
-	gl::enableWireframe();
+	//gl::enableWireframe();
 	gl::draw( mesh );
-	gl::disableWireframe();
-
+	//gl::disableWireframe();
 
 	params::InterfaceGl::draw();
 }
