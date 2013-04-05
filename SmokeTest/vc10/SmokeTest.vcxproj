@@ -11,27 +11,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNI.cpp" />
-    <ClCompile Include="..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNIUserTracker.cpp" />
-    <ClCompile Include="..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\gl\fx\KawaseBloom.cpp" />
-    <ClCompile Include="..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.cpp" />
-    <ClCompile Include="..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidDrawerGl.cpp" />
-    <ClCompile Include="..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidSolver.cpp" />
+    <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNI.cpp" />
+    <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNIUserTracker.cpp" />
+    <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\gl\fx\KawaseBloom.cpp" />
+    <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.cpp" />
+    <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidDrawerGl.cpp" />
+    <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidSolver.cpp" />
     <ClCompile Include="..\src\CaptureSource.cpp" />
     <ClCompile Include="..\src\FluidParticles.cpp" />
     <ClCompile Include="..\src\Prothesis2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNI.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNIBufferManager.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNIUserTracker.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\include\CinderOpenCV.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\gl\fx\KawaseBloom.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluid.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidDrawerGl.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidParticleUpdater.h" />
-    <ClInclude Include="..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidSolver.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNI.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNIBufferManager.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNIUserTracker.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\include\CinderOpenCV.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\gl\fx\KawaseBloom.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluid.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidDrawerGl.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidParticleUpdater.h" />
+    <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidSolver.h" />
     <ClInclude Include="..\include\CaptureSource.h" />
     <ClInclude Include="..\include\FluidParticles.h" />
   </ItemGroup>
@@ -72,7 +72,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\..\..\cinder_0.8.5\include;..\..\..\cinder_0.8.5\blocks\msaFluid\include;..\..\..\cinder_0.8.5\blocks\MndlKit\src;..\..\..\cinder_0.8.5\src\AntTweakBar;..\..\..\cinder_0.8.5\boost;..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\include;..\..\..\cinder_0.8.5\blocks\Cinder-NI\include;..\..\..\OpenNI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\..\..\..\cinder_0.8.5\include;..\..\..\..\cinder_0.8.5\blocks\msaFluid\include;..\..\..\..\cinder_0.8.5\blocks\MndlKit\src;..\..\..\..\cinder_0.8.5\src\AntTweakBar;..\..\..\..\cinder_0.8.5\boost;..\..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\include;..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src;..\..\..\..\OpenNI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -84,7 +84,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;QTMLClient.lib;CVClient.lib;Cinder-NId.lib;openNI.lib;opencv_calib3d243d.lib;opencv_contrib243d.lib;opencv_core243d.lib;opencv_features2d243d.lib;opencv_flann243d.lib;opencv_gpu243d.lib;opencv_imgproc243d.lib;opencv_legacy243d.lib;opencv_ml243d.lib;opencv_nonfree243d.lib;opencv_objdetect243d.lib;opencv_photo243d.lib;opencv_stitching243d.lib;opencv_ts243d.lib;opencv_video243d.lib;opencv_videostab243d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\cinder_0.8.5\lib;..\..\..\cinder_0.8.5\lib\msw;..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\lib\vc10;..\..\..\cinder_0.8.5\blocks\QuickTime\lib\msw;..\..\..\cinder_0.8.5\blocks\Cinder-NI\lib\vc10;..\..\..\OpenNI\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\cinder_0.8.5\lib;..\..\..\..\cinder_0.8.5\lib\msw;..\..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\lib\vc10;..\..\..\..\cinder_0.8.5\blocks\QuickTime\lib\msw;..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\lib\vc10;..\..\..\..\OpenNI\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -99,7 +99,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\..\..\cinder_0.8.5\include;..\..\..\cinder_0.8.5\blocks\msaFluid\include;..\..\..\cinder_0.8.5\blocks\MndlKit\src;..\..\..\cinder_0.8.5\src\AntTweakBar;..\..\..\cinder_0.8.5\boost;..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\include;..\..\..\cinder_0.8.5\blocks\Cinder-NI\src;..\..\..\OpenNI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\..\..\..\cinder_0.8.5\include;..\..\..\..\cinder_0.8.5\blocks\msaFluid\include;..\..\..\..\cinder_0.8.5\blocks\MndlKit\src;..\..\..\..\cinder_0.8.5\src\AntTweakBar;..\..\..\..\cinder_0.8.5\boost;..\..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\include;..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src;..\..\..\..\OpenNI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
@@ -109,7 +109,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;QTMLClient.lib;CVClient.lib;Cinder-NI.lib;openNI.lib;opencv_calib3d243.lib;opencv_contrib243.lib;opencv_core243.lib;opencv_features2d243.lib;opencv_flann243.lib;opencv_gpu243.lib;opencv_imgproc243.lib;opencv_legacy243.lib;opencv_ml243.lib;opencv_nonfree243.lib;opencv_objdetect243.lib;opencv_photo243.lib;opencv_stitching243.lib;opencv_ts243.lib;opencv_video243.lib;opencv_videostab243.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\cinder_0.8.5\lib;..\..\..\cinder_0.8.5\lib\msw;..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\lib\vc10;..\..\..\cinder_0.8.5\blocks\QuickTime\lib\msw;..\..\..\cinder_0.8.5\blocks\Cinder-NI\lib\vc10;..\..\..\OpenNI\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\cinder_0.8.5\lib;..\..\..\..\cinder_0.8.5\lib\msw;..\..\..\..\cinder_0.8.5\blocks\Cinder-OpenCV\lib\vc10;..\..\..\..\cinder_0.8.5\blocks\QuickTime\lib\msw;..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\lib\vc10;..\..\..\..\OpenNI\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
