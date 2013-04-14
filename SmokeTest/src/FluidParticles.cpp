@@ -35,6 +35,7 @@ FluidParticle::FluidParticle()
 
 FluidParticle::FluidParticle( const Vec2f &pos )
 {
+	mColor = Color::white();
 	mPos = pos;
 	mVel = Vec2f( 0, 0 );
 	mSize = Rand::randFloat( 10, 20 );
@@ -64,14 +65,13 @@ void FluidParticle::update( double time, const ciMsaFluidSolver *solver, const V
 	positions[2] = mPos.x;
 	positions[3] = mPos.y;
 
-	float col = Rand::randFloat();
-	colors[0] = col;
-	colors[1] = col;
-	colors[2] = col;
+	colors[0] = mColor.r;
+	colors[1] = mColor.g;
+	colors[2] = mColor.b;
 	colors[3] = mLifeSpan;
-	colors[4] = col;
-	colors[5] = col;
-	colors[6] = col;
+	colors[4] = mColor.r;
+	colors[5] = mColor.g;
+	colors[6] = mColor.b;
 	colors[7] = mLifeSpan;
 }
 
@@ -130,10 +130,12 @@ void FluidParticleManager::draw()
 void FluidParticleManager::addParticle( const Vec2f &pos, int count /* = 1 */ )
 {
 	mParticles[ mCurrent ] = FluidParticle( pos );
+	mParticles[ mCurrent ].setColor( mParticleColor );
 	for (int i = count - 1; i > 0; i--)
 	{
 		mCurrent = (mCurrent + 1) & (MAX_PARTICLES - 1);
 		mParticles[ mCurrent ] = FluidParticle( pos + Rand::randVec2f() * 10 );
+		mParticles[ mCurrent ].setColor( mParticleColor );
 	}
 	mCurrent = (mCurrent + 1) & (MAX_PARTICLES - 1);
 }

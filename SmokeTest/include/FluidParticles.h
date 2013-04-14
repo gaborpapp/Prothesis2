@@ -31,6 +31,8 @@ class FluidParticle
 		void update( double time, const ciMsaFluidSolver *solver, const ci::Vec2f &windowSize, const ci::Vec2f &invWindowSize, float *positions, float *colors );
 		bool isAlive() { return mLifeSpan > 0; }
 
+		void setColor( const ci::Color &color ) { mColor = color; }
+
 	private:
 		ci::Vec2f mPos;
 		ci::Vec2f mVel;
@@ -60,6 +62,8 @@ class FluidParticleManager
 		static float getAging() { return sAging; }
 		static void setAging( float a ) { sAging = a; }
 
+		void setColor( const ci::Color &color ) { mParticleColor = color; }
+
 	private:
 		ci::Vec2i mWindowSize;
 		ci::Vec2f mInvWindowSize;
@@ -67,6 +71,7 @@ class FluidParticleManager
 		const ciMsaFluidSolver *mSolver;
 
 		static float sAging;
+		ci::Color mParticleColor;
 
 #define MAX_PARTICLES 16384 // pow 2!
 		int mCurrent;

@@ -101,7 +101,16 @@ void ciMsaFluidDrawerGl::createTexture() {
 	int texHeight =_fluidSolver->getHeight()-2;
 
 	_pixels = new unsigned char[texWidth * texHeight * _bpp];
-	_surface = Surface8u( _pixels, texWidth, texHeight, false, SurfaceChannelOrder::RGB );
+	//_surface = Surface8u( _pixels, texWidth, texHeight, false, SurfaceChannelOrder::RGB );
+	if ( _alphaEnabled )
+	{
+		_surface = Surface8u( _pixels, texWidth, texHeight, texWidth * _bpp, SurfaceChannelOrder::RGBA );
+	}
+	else
+	{
+		_surface = Surface8u( _pixels, texWidth, texHeight, texWidth * _bpp, SurfaceChannelOrder::RGB );
+	}
+
 
 #ifdef FLUID_TEXTURE
 	gl::Texture::Format format;

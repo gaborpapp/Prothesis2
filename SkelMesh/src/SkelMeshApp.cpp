@@ -20,11 +20,17 @@
 #include "cinder/Cinder.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Material.h"
+#include "cinder/gl/Light.h"
 #include "cinder/params/Params.h"
 #include "cinder/MayaCamUI.h"
 #include "cinder/TriMesh.h"
 
 #include "CiNI.h"
+#include "mndlkit/params/PParams.h"
+
+#include "Resources.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -40,12 +46,13 @@ class SkelMeshApp : public AppBasic
 		void mouseDown( MouseEvent event );
 		void mouseDrag( MouseEvent event );
 		void resize();
+		void shutdown();
 
 		void update();
 		void draw();
 
 	private:
-		params::InterfaceGl mParams;
+		mndl::params::PInterfaceGl mParams;
 
 		float mFps;
 		bool mVerticalSyncEnabled;
@@ -79,6 +86,18 @@ class SkelMeshApp : public AppBasic
 		int mCurrentPosition;
 
 		void updateSkeleton();
+
+		Vec3f mLightDirection;
+		Color mLightAmbient;
+		Color mLightDiffuse;
+		Color mLightSpecular;
+
+		Color mMaterialAmbient;
+		Color mMaterialDiffuse;
+		Color mMaterialSpecular;
+		float mMaterialShininess;
+
+		gl::GlslProg mPhongShader;
 };
 
 void SkelMeshApp::prepareSettings( Settings *settings )
@@ -88,15 +107,37 @@ void SkelMeshApp::prepareSettings( Settings *settings )
 
 void SkelMeshApp::setup()
 {
-	mVerticalSyncEnabled = false;
-
-	mParams = params::InterfaceGl( "Parameters", Vec2i( 200, 300 ) );
+	mndl::params::PInterfaceGl::load( "params.xml" );
+	mParams = mndl::params::PInterfaceGl( "Parameters", Vec2i( 200, 300 ), Vec2i( 16, 16 ) );
+	mParams.addPersistentSizeAndPosition();
 	mParams.addParam( "Fps", &mFps, "", true );
-	mParams.addParam( "Vertical sync", &mVerticalSyncEnabled );
+	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
+	mParams.addSeparator();
+	mParams.addPersistentParam( "Light direction", &mLightDirection, Vec3f( 1.42215264, -1.07486057, -0.842143714 ) );
+	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
+	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
+	mParams.addPersistentParam( "Light specular", &mLightDiffuse, Color::white() );
+	mParams.addSeparator();
+	mParams.addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
+	mParams.addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
+	mParams.addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
+	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
+	mParams.addSeparator();
+	mParams.addButton( "Reset", [&]() { mStoredPositions = 0; mCurrentPosition = 0; } );
 
 	try
 	{
-//#define KINECT_USE_RECORDING
+		mPhongShader = gl::GlslProg( loadResource( RES_PHONG_DIRECTIONAL_VERT ),
+									 loadResource( RES_PHONG_DIRECTIONAL_FRAG ) );
+	}
+	catch ( gl::GlslProgCompileExc &exc )
+	{
+		console() << exc.what() << endl;
+	}
+
+	try
+	{
+#define KINECT_USE_RECORDING
 #ifndef KINECT_USE_RECORDING
 		mNI = mndl::ni::OpenNI( mndl::ni::OpenNI::Device() );
 #else
@@ -126,7 +167,7 @@ void SkelMeshApp::setup()
 
 	mStoredPositions = 0;
 	mCurrentPosition = 0;
-	mMaxPositions = 64;
+	mMaxPositions = 256;
 	mPositions.resize( mMaxPositions );
 	/*
 	for ( int i = 0; i < mMaxPositions; i++ )
@@ -170,9 +211,6 @@ void SkelMeshApp::updateSkeleton()
 			mPositions[ mCurrentPosition ].mJoints[ jointId ] =
 				mNIUserTracker.getJoint3d( userId, jointIds[i],
 				&mPositions[ mCurrentPosition ].mConf[ jointId ] );
-			console() << i << " " << mPositions[ mCurrentPosition ].mJoints[ jointId ] << " " <<
-				mPositions[ mCurrentPosition ].mConf[ jointId ] << endl;
-
 		}
 		mCurrentPosition++;
 		mStoredPositions = math< int >::min( mStoredPositions + 1, mMaxPositions );
@@ -264,19 +302,59 @@ void SkelMeshApp::draw()
 				mesh.appendNormal( normal );
 				mesh.appendNormal( normal );
 				mesh.appendNormal( normal );
-				Color c( normal.x, normal.y, normal.z );
-				mesh.appendColorRgb( c );
-				mesh.appendColorRgb( c );
-				mesh.appendColorRgb( c );
-				mesh.appendColorRgb( c );
+
+				// backface
+				mesh.appendVertex( mPositions[ current ].mJoints[ id0 ] );
+				mesh.appendVertex( mPositions[ current ].mJoints[ id1 ] );
+				mesh.appendVertex( mPositions[ last ].mJoints[ id1 ] );
+				mesh.appendVertex( mPositions[ last ].mJoints[ id0 ] );
+				mesh.appendTriangle( currentId, currentId + 2, currentId + 1 );
+				mesh.appendTriangle( currentId, currentId + 3, currentId + 2 );
+				currentId += 4;
+				normal = -normal;
+				mesh.appendNormal( normal );
+				mesh.appendNormal( normal );
+				mesh.appendNormal( normal );
+				mesh.appendNormal( normal );
 			}
 		}
 	}
-	//gl::enableWireframe();
-	gl::draw( mesh );
-	//gl::disableWireframe();
 
-	params::InterfaceGl::draw();
+	// setup light 0
+	gl::Light light( gl::Light::DIRECTIONAL, 0 );
+	light.setDirection( mLightDirection );
+	light.setAmbient( mLightAmbient );
+	light.setDiffuse( mLightDiffuse );
+	light.setSpecular( mLightSpecular );
+	//light.setShadowParams( 60.0f, 5.0f, lightPosition.length() * 1.5f );
+	light.enable();
+
+	gl::Material material( mMaterialAmbient, mMaterialDiffuse, mMaterialSpecular );
+	material.setShininess( mMaterialShininess );
+	material.apply();
+
+	gl::enable( GL_CULL_FACE );
+	gl::enable( GL_LIGHTING );
+	if ( mPhongShader )
+		mPhongShader.bind();
+	gl::draw( mesh );
+	if ( mPhongShader )
+		mPhongShader.unbind();
+	gl::disable( GL_LIGHTING );
+
+	/*
+	{
+		const std::vector< Vec3f > &v = mesh.getVertices();
+		const std::vector< Vec3f > &n = mesh.getNormals();
+		gl::color( Color( 1, 0, 0 ) );
+		for ( size_t i = 0; i < n.size(); i++ )
+		{
+			gl::drawVector( v[ i ], v[ i ] + 100 * n[ i ] );
+		}
+	}
+	*/
+
+	mndl::params::PInterfaceGl::draw();
 }
 
 void SkelMeshApp::keyDown( KeyEvent event )
@@ -339,6 +417,12 @@ void SkelMeshApp::resize()
 	cam.setAspectRatio( getWindowAspectRatio() );
 	mMayaCam.setCurrentCam( cam );
 }
+
+void SkelMeshApp::shutdown()
+{
+	mndl::params::PInterfaceGl::save();
+}
+
 
 CINDER_APP_BASIC( SkelMeshApp, RendererGl )
 

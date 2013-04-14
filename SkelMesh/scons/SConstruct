@@ -2,8 +2,9 @@ env = Environment()
 
 env['APP_TARGET'] = 'SkelMeshApp'
 env['APP_SOURCES'] = ['SkelMeshApp.cpp']
+env['RESOURCES'] = ['shaders/*']
 
-# Cinder-NI
 env = SConscript('../../../../blocks/Cinder-NI/scons/SConscript', exports = 'env')
+env = SConscript('../../../../blocks/MndlKit/scons/SConscript', exports = 'env')
 
 SConscript('../../../../scons/SConscript', exports = 'env')

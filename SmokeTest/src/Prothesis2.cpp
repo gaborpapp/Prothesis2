@@ -82,6 +82,7 @@ class Prothesis2App : public AppBasic
 		float mFluidVelocityMult;
 		float mFluidColorMult;
 		Color mFluidColor;
+		Color mBackgroundColor;
 
 		// particles
 		FluidParticleManager mParticles;
@@ -92,6 +93,7 @@ class Prothesis2App : public AppBasic
 		float mVelParticleMult;
 		float mVelParticleMin;
 		float mVelParticleMax;
+		Color mParticleColor;
 
 		void addToFluid( Vec2f pos, Vec2f vel, bool addParticles = true, bool addForce = true, bool addColor = true );
 };
@@ -122,6 +124,7 @@ void Prothesis2App::setup()
 	mParams.addSeparator();
 
 	mParams.addText( "Particles" );
+	mParams.addPersistentParam( "Particle color", &mParticleColor, Color::white() );
 	mParams.addPersistentParam( "Particle aging", &mParticleAging, 0.97f, "min=0 max=1 step=0.001" );
 	mParams.addPersistentParam( "Particle min", &mParticleMin, 0, "min=0 max=50" );
 	mParams.addPersistentParam( "Particle max", &mParticleMax, 25, "min=0 max=50" );
@@ -144,12 +147,14 @@ void Prothesis2App::setup()
 	mParams.addPersistentParam( "Wrap x", &mFluidWrapX, false );
 	mParams.addPersistentParam( "Wrap y", &mFluidWrapY, false );
 	mParams.addPersistentParam( "Fluid color", &mFluidColor, Color( 1.f, 0.05f, 0.01f ) );
+	mParams.addPersistentParam( "Backgroudn color", &mBackgroundColor, Color::black() );
 	mParams.addPersistentParam( "Fluid velocity mult", &mFluidVelocityMult, 10.f, "min=1 max=50 step=0.5" );
 	mParams.addPersistentParam( "Fluid color mult", &mFluidColorMult, .5f, "min=0.05 max=10 step=0.05" );
 
 	mFluidSolver.setup( mFluidWidth, mFluidHeight );
 	mFluidSolver.enableRGB( false );
 	mFluidSolver.setColorDiffusion( 0 );
+	mFluidDrawer.enableAlpha( true );
 	mFluidDrawer.setup( &mFluidSolver );
 	mParams.addButton( "Reset fluid", [&]() { mFluidSolver.reset(); } );
 
@@ -159,7 +164,6 @@ void Prothesis2App::setup()
 void Prothesis2App::resize()
 {
 	mParticles.setWindowSize( getWindowSize() );
-
 }
 
 void Prothesis2App::update()
@@ -270,6 +274,7 @@ void Prothesis2App::update()
 	mFluidSolver.update();
 
 	mParticles.setAging( mParticleAging );
+	mParticles.setColor( mParticleColor );
 	mParticles.update( getElapsedSeconds() );
 }
 
@@ -304,15 +309,16 @@ void Prothesis2App::addToFluid( Vec2f pos, Vec2f vel, bool addParticles, bool ad
 
 void Prothesis2App::draw()
 {
-	gl::clear();
-
 	gl::setViewport( getWindowBounds() );
 	gl::setMatricesWindow( getWindowSize() );
+	gl::clear( mBackgroundColor );
 
 	if ( mDrawFluid )
 	{
 		gl::color( mFluidColor );
-		mFluidDrawer.draw( 0, 0, getWindowWidth(), getWindowHeight() );
+		gl::enableAlphaBlending();
+		mFluidDrawer.drawColor( 0, 0, getWindowWidth(), getWindowHeight(), true );
+		gl::disableAlphaBlending();
 	}
 	mParticles.draw();
 

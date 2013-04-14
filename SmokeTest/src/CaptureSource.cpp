@@ -104,9 +104,9 @@ void CaptureSource::setupParams()
 #endif
 	enumNames.push_back( "Kinect" );
 
-	// FIXME: other capture devices don't work when kinect is connected?
-	//mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_CAPTURE );
-	mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_KINECT, "", true );
+	// FIXME: other capture devices don't work when kinect is connected? seems to be a hw problem on mac
+	mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_CAPTURE );
+	//mParams.addPersistentParam( "Source", enumNames, &mSource, SOURCE_KINECT, "", true );
 
 	mParams.addSeparator();
 	if ( mSource == SOURCE_RECORDING )
