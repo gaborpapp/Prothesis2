@@ -56,5 +56,13 @@
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.h">
       <Filter>blocks\mndlkit</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

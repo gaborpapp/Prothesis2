@@ -337,7 +337,8 @@ void SkelMeshApp::draw()
 	gl::enable( GL_LIGHTING );
 	if ( mPhongShader )
 		mPhongShader.bind();
-	gl::draw( mesh );
+	if ( mesh.getNumVertices() )
+		gl::draw( mesh );
 	if ( mPhongShader )
 		mPhongShader.unbind();
 	gl::disable( GL_LIGHTING );

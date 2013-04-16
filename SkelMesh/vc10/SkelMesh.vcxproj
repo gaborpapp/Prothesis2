@@ -23,6 +23,10 @@
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNIUserTracker.h" />
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\gl\fx\KawaseBloom.h" />
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.h" />
+    <ClInclude Include="..\include\Resources.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{27257FEF-9BF1-4F0B-9AF5-EB38E9B5E8EF}</ProjectGuid>
