@@ -137,7 +137,7 @@ void SkelMeshApp::setup()
 
 	try
 	{
-#define KINECT_USE_RECORDING
+//#define KINECT_USE_RECORDING
 #ifndef KINECT_USE_RECORDING
 		mNI = mndl::ni::OpenNI( mndl::ni::OpenNI::Device() );
 #else
