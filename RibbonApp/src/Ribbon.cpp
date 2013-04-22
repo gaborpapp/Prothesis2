@@ -22,7 +22,7 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 	if( ! mActive )
 		return;
 
-	if( mLoc.size() == 0 )
+	if( mLoc.empty() )
 		return;
 
 	/*
@@ -35,7 +35,7 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 	*/
 
 	gl::begin( GL_QUAD_STRIP );
-	unsigned short i = 0;
+	size_t i = 0;
 	Vec3f dir, off, n;
 	Vec3f normal;
 	for ( ; i < mLoc.size() - 1; i++ )
@@ -53,7 +53,7 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 		gl::vertex( mLoc[ i ] + off );
 	}
 	// last point
-	if ( i > 0 )
+	if ( ( i > 0 ) && ( i < mLoc.size() ) )
 	{
 		glNormal3fv( &normal.x );
 		gl::vertex( mLoc[ i ] - off );

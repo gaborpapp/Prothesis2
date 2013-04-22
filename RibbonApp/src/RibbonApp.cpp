@@ -171,9 +171,9 @@ void RibbonApp::draw()
 	material.setShininess( mMaterialShininess );
 	material.apply();
 
-	gl::enable( GL_LIGHTING );
+	//gl::enable( GL_LIGHTING );
 	mUserManager.draw( cameraDir );
-	gl::disable( GL_LIGHTING );
+	//gl::disable( GL_LIGHTING );
 
 	mParams.draw();
 }
