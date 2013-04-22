@@ -4,17 +4,32 @@
 
 using namespace ci;
 
+mndl::params::PInterfaceGl Ribbon::mParams      = mndl::params::PInterfaceGl();
+int                        Ribbon::mMaxLength   = 32;
+float                      Ribbon::mWidth       = 16.0f;
+float                      Ribbon::mMinDistance = 0.5f;
+
+void Ribbon::setup()
+{
+	mParams = mndl::params::PInterfaceGl( "Ribbon", Vec2i( 200, 150 ), Vec2i( 500, 16 ) );
+	mParams.addPersistentSizeAndPosition();
+
+	mParams.addPersistentParam( "Max length"  , &mMaxLength  , 32   , "min= 10    max= 1000  step= 1"    );
+	mParams.addPersistentParam( "Width"       , &mWidth      , 16.0f, "min= 0.1f  max= 100.0 step= 0.1"  );
+	mParams.addPersistentParam( "Min distance", &mMinDistance, 0.5f , "min= 0.01f max= 10.0  step= 0.01" );
+}
+
 void Ribbon::update( const Vec3f &pos )
 {
 	if( ! mActive )
 		return;
 
-	if ( !mLoc.empty() && ( mLoc.back().distanceSquared( pos ) < 1.f ) )
+	if ( !mLoc.empty() && ( mLoc.back().distanceSquared( pos ) < mMinDistance ) )
 		return;
 
 	mLoc.push_back( pos );
 
-	if ( mLoc.size() > mMaxLength )
+	while ( mLoc.size() > mMaxLength )
 	{
 		mLoc.erase( mLoc.begin() );
 	}
@@ -80,6 +95,8 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 	}
 	gl::end();
 	*/
+
+	mParams.draw();
 }
 
 void Ribbon::clear()

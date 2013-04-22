@@ -26,8 +26,9 @@
 #include "mndlkit/params/PParams.h"
 
 #include "NIUser.h"
+#include "Ribbon.h"
 
-#define USE_KINECT_RECORD 1
+//#define USE_KINECT_RECORD 1
 
 using namespace ci;
 using namespace ci::app;
@@ -83,6 +84,8 @@ void RibbonApp::prepareSettings( Settings *settings )
 
 void RibbonApp::setup()
 {
+	Ribbon::setup();
+
 	mndl::params::PInterfaceGl::load( "params.xml" );
 	mParams = mndl::params::PInterfaceGl( "Parameters", Vec2i( 200, 300 ), Vec2i( 16, 16 ) );
 	mParams.addPersistentSizeAndPosition();

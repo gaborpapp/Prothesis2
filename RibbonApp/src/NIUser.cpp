@@ -165,7 +165,7 @@ void UserManager::setup( const fs::path &path )
 {
 	mThread = std::shared_ptr< std::thread >( new thread( bind( &UserManager::openKinect, this, path ) ) );
 
-	mParams = mndl::params::PInterfaceGl( "Kinect", Vec2i( 250, 350 ), Vec2i( 250, 16 ) );
+	mParams = mndl::params::PInterfaceGl( "Kinect", Vec2i( 225, 350 ), Vec2i( 250, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addText("Tracking");
 	mKinectProgress = "Connecting...\0\0\0\0\0\0\0\0\0";
@@ -187,7 +187,12 @@ void UserManager::setup( const fs::path &path )
 		"Torso", "Left knee", "Right knee", "Left foot", "Right foot";
 	for( size_t i = 0; i < jointNames.size(); i++ )
 	{
-		mParams.addPersistentParam( jointNames[ i ] + " active", &mRibbonActive[ i ], true );
+		bool defaultValue = false;
+
+		if( i == LEFT_HAND || i == RIGHT_HAND )
+			defaultValue = true;
+
+		mParams.addPersistentParam( jointNames[ i ] + " active", &mRibbonActive[ i ], defaultValue );
 	}
 
 	mParams.setOptions( "", "refresh=.3" );

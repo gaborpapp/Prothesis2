@@ -3,6 +3,7 @@
 #include <deque>
 #include "cinder/Cinder.h"
 #include "cinder/Vector.h"
+#include "mndlkit/params/PParams.h"
 
 class Ribbon;
 typedef std::shared_ptr< Ribbon > RibbonRef;
@@ -19,14 +20,13 @@ class Ribbon
 		void setActive( bool active );
 		bool getActive() const;
 
-	protected:
-		Ribbon()
-		: mMaxLength( 32 )
-		, mWidth( 16.0f )
-		{}
+		static void setup();
 
-		const unsigned short mMaxLength;
-		const float mWidth;
+	protected:
+		static mndl::params::PInterfaceGl mParams;
+		static int mMaxLength;
+		static float mWidth;
+		static float mMinDistance;
 
 		std::deque< ci::Vec3f > mLoc;
 
