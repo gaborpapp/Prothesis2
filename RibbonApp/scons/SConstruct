@@ -1,10 +1,12 @@
 env = Environment()
 
 env['APP_TARGET'] = 'RibbonApp'
-env['APP_SOURCES'] = ['RibbonApp.cpp', 'Ribbon.cpp']
+env['APP_SOURCES'] = ['RibbonApp.cpp', 'Ribbon.cpp', 'NIUser.cpp', 'RibbonManager.cpp']
+env['ASSETS'] = ['test.oni']
 env['DEBUG'] = 1
 
 env = SConscript('../../../../blocks/MndlKit/scons/SConscript', exports = 'env')
+env = SConscript('../../../../blocks/Cinder-NI/scons/SConscript', exports = 'env')
 
 SConscript('../../../../scons/SConscript', exports = 'env')
 

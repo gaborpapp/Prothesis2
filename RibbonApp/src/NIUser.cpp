@@ -200,7 +200,7 @@ void UserManager::openKinect( const fs::path &path )
 		else
 			kinect = OpenNI( path );
 		{
-			boost::lock_guard< boost::mutex > lock( mMutex );
+			std::lock_guard< std::mutex > lock( mMutex );
 			mNI = kinect;
 		}
 	}
@@ -219,7 +219,7 @@ void UserManager::openKinect( const fs::path &path )
 		mKinectProgress = "Recording loaded";
 
 	{
-		boost::lock_guard< boost::mutex > lock( mMutex );
+		std::lock_guard< std::mutex > lock( mMutex );
 		mNI.setDepthAligned();
 		mNI.start();
 		mNIUserTracker = mNI.getUserTracker();
@@ -230,7 +230,7 @@ void UserManager::openKinect( const fs::path &path )
 void UserManager::update()
 {
 	{
-		boost::lock_guard< boost::mutex > lock( mMutex );
+		std::lock_guard< std::mutex > lock( mMutex );
 		if ( !mNI )
 			return;
 	}
@@ -376,9 +376,9 @@ bool UserManager::getRibbonActive( XnSkeletonJoint jointId )
 	case XN_SKEL_RIGHT_KNEE     : return mRibbonActive[ RIGHT_KNEE     ];
 	case XN_SKEL_LEFT_FOOT      : return mRibbonActive[ LEFT_FOOT      ];
 	case XN_SKEL_RIGHT_FOOT     : return mRibbonActive[ RIGHT_FOOT     ];
+	default                     : return false;
 	}
 
-	return false;
 }
 
 void UserManager::newUser( UserTracker::UserEvent event )
