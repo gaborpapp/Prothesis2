@@ -9,6 +9,9 @@ void Ribbon::update( const Vec3f &pos )
 	if( ! mActive )
 		return;
 
+	if ( !mLoc.empty() && ( mLoc.back().distanceSquared( pos ) < 1.f ) )
+		return;
+
 	mLoc.push_back( pos );
 
 	if ( mLoc.size() > mMaxLength )

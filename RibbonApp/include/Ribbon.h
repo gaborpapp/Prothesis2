@@ -21,7 +21,7 @@ class Ribbon
 
 	protected:
 		Ribbon()
-		: mMaxLength( 128 )
+		: mMaxLength( 32 )
 		, mWidth( 16.0f )
 		{}
 
