@@ -1,0 +1,10 @@
+env = Environment()
+
+env['APP_TARGET'] = 'RibbonApp'
+env['APP_SOURCES'] = ['RibbonApp.cpp', 'Ribbon.cpp']
+env['DEBUG'] = 1
+
+env = SConscript('../../../../blocks/MndlKit/scons/SConscript', exports = 'env')
+
+SConscript('../../../../scons/SConscript', exports = 'env')
+
