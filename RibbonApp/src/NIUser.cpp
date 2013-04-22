@@ -155,9 +155,15 @@ UserManager::UserManager()
 	mJointRef = XN_SKEL_TORSO;
 }
 
+UserManager::~UserManager()
+{
+	if ( mThread )
+		mThread->join();
+}
+
 void UserManager::setup( const fs::path &path )
 {
-	mThread = thread( bind( &UserManager::openKinect, this, path ) );
+	mThread = std::shared_ptr< std::thread >( new thread( bind( &UserManager::openKinect, this, path ) ) );
 
 	mParams = mndl::params::PInterfaceGl( "Kinect", Vec2i( 250, 350 ), Vec2i( 250, 16 ) );
 	mParams.addPersistentSizeAndPosition();

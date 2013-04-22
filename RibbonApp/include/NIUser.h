@@ -45,6 +45,7 @@ typedef std::map< unsigned, UserRef >                            Users;
 typedef std::vector< XnSkeletonJoint >                           Joints;
 public:
 	UserManager();
+	~UserManager();
 
 	void setup( const ci::fs::path &path = "" );
 	void update();
@@ -112,7 +113,7 @@ private:
 	int                        mRibbonSelect[10];
 	bool                       mRibbonActive[10];
 
-	std::thread                mThread;
+	std::shared_ptr< std::thread > mThread;
 	std::mutex                 mMutex;
 	void                       openKinect( const ci::fs::path &path );
 
