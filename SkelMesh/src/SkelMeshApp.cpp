@@ -53,6 +53,7 @@ class SkelMeshApp : public AppBasic
 
 	private:
 		mndl::params::PInterfaceGl mParams;
+		mndl::params::PInterfaceGl mEdgeParams;
 
 		float mFps;
 		bool mVerticalSyncEnabled;
@@ -98,6 +99,24 @@ class SkelMeshApp : public AppBasic
 		float mMaterialShininess;
 
 		gl::GlslProg mPhongShader;
+
+		void addEdge( int edgeId );
+		void rebuildEdgeParams();
+		void removeEdgeFromParams( int edgeId );
+
+		int mEdgeNum = 0;
+		const int MAX_EDGE_NUM = 128;
+
+		struct Edge
+		{
+			Edge() : mJoint0( 0 ), mJoint1( 0 ) {}
+			int mJoint0, mJoint1;
+		};
+		vector< Edge > mEdges;
+
+		void loadConfig( const fs::path &fname );
+		void saveConfig();
+		fs::path mConfigFile;
 };
 
 void SkelMeshApp::prepareSettings( Settings *settings )
@@ -107,6 +126,8 @@ void SkelMeshApp::prepareSettings( Settings *settings )
 
 void SkelMeshApp::setup()
 {
+	mEdges.resize( MAX_EDGE_NUM );
+
 	mndl::params::PInterfaceGl::load( "params.xml" );
 	mParams = mndl::params::PInterfaceGl( "Parameters", Vec2i( 200, 300 ), Vec2i( 16, 16 ) );
 	mParams.addPersistentSizeAndPosition();
@@ -124,6 +145,12 @@ void SkelMeshApp::setup()
 	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
 	mParams.addSeparator();
 	mParams.addButton( "Reset", [&]() { mStoredPositions = 0; mCurrentPosition = 0; } );
+
+	mEdgeParams = mndl::params::PInterfaceGl( "Edges", Vec2i( 200, 300 ), Vec2i( 232, 16 ) );
+	mEdgeParams.addPersistentSizeAndPosition();
+
+	loadConfig( "config.xml" );
+	rebuildEdgeParams();
 
 	try
 	{
@@ -175,6 +202,50 @@ void SkelMeshApp::setup()
 		mPositions[ i ] = Position();
 	}
 	*/
+}
+
+void SkelMeshApp::addEdge( int edgeId )
+{
+	vector< string> jointNames = { "head", "neck", "torso", "left shoulder",
+		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",
+		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot" };
+
+	string edgeName = "Edge " + toString< int >( edgeId );
+	mEdgeParams.addText( edgeName );
+	mEdgeParams.addParam( edgeName + " joint 0", jointNames, &mEdges[ edgeId ].mJoint0 );
+	mEdgeParams.addParam( edgeName + " joint 1", jointNames, &mEdges[ edgeId ].mJoint1 );
+	mEdgeParams.addButton( "Remove " + edgeName, [ this, edgeId ]() { removeEdgeFromParams( edgeId ); } );
+	mEdgeParams.addSeparator();
+}
+
+void SkelMeshApp::rebuildEdgeParams()
+{
+	if ( mEdgeNum >= MAX_EDGE_NUM )
+	{
+		mEdgeNum = MAX_EDGE_NUM - 1;
+		return;
+	}
+
+	mEdgeParams.clear();
+	for ( int i = 0; i < mEdgeNum; i++ )
+		addEdge( i );
+
+	mEdgeParams.addButton( "Add edge", [this]()
+			{
+				mEdges[ mEdgeNum ] = Edge();
+				mEdgeNum++;
+				rebuildEdgeParams();
+			} );
+}
+
+void SkelMeshApp::removeEdgeFromParams( int edgeId )
+{
+	mEdgeNum--;
+	// copy parameter values
+	for ( int i = edgeId; i < mEdgeNum; i++ )
+		mEdges[ i ] = mEdges[ i + 1 ];
+
+	rebuildEdgeParams();
 }
 
 void SkelMeshApp::update()
@@ -355,7 +426,8 @@ void SkelMeshApp::draw()
 	}
 	*/
 
-	mndl::params::PInterfaceGl::draw();
+	mParams.draw();
+	mEdgeParams.draw();
 }
 
 void SkelMeshApp::keyDown( KeyEvent event )
@@ -422,8 +494,53 @@ void SkelMeshApp::resize()
 void SkelMeshApp::shutdown()
 {
 	mndl::params::PInterfaceGl::save();
+	saveConfig();
 }
 
+void SkelMeshApp::loadConfig( const fs::path &fname )
+{
+	fs::path configXml( app::getAssetPath( fname ));
+	if ( configXml.empty() )
+	{
+#if defined( CINDER_MAC )
+		fs::path assetPath( app::App::getResourcePath() / "assets" );
+#else
+		fs::path assetPath( app::App::get()->getAppPath() / "assets" );
+#endif
+		createDirectories( assetPath );
+		configXml = assetPath / fname ;
+	}
+
+	mConfigFile = configXml;
+	if ( !fs::exists( configXml ) )
+		return;
+
+	XmlTree config( loadFile( configXml ) );
+
+	XmlTree edges = config.getChild( "edges" );
+	mEdgeNum = edges.getAttributeValue< int >( "num" );
+	int edgeId = 0;
+	for ( XmlTree::Iter pit = config.begin( "edges/edge"); pit != config.end(); ++pit, edgeId++ )
+	{
+		mEdges[ edgeId ].mJoint0 = pit->getAttributeValue< int >( "joint0" );
+		mEdges[ edgeId ].mJoint1 = pit->getAttributeValue< int >( "joint1" );
+	}
+}
+
+void SkelMeshApp::saveConfig()
+{
+	XmlTree config( "edges", "" );
+
+	config.setAttribute( "num", mEdgeNum );
+	for ( int i = 0; i < mEdgeNum; i++ )
+	{
+		XmlTree t = XmlTree( "edge", "" );
+		t.setAttribute( "joint0", mEdges[ i ].mJoint0 );
+		t.setAttribute( "joint1", mEdges[ i ].mJoint1 );
+		config.push_back( t );
+	}
+	config.write( writeFile( mConfigFile ) );
+}
 
 CINDER_APP_BASIC( SkelMeshApp, RendererGl )
 
