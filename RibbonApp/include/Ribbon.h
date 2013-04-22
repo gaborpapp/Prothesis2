@@ -13,15 +13,23 @@ class Ribbon
 		static RibbonRef create() { return RibbonRef( new Ribbon() ); }
 
 		void update( const ci::Vec3f &pos );
-
 		void draw( const ci::Vec3f &cameraDir );
+		void clear();
+
+		void setActive( bool active );
+		bool getActive() const;
 
 	protected:
-		Ribbon() {}
+		Ribbon()
+		: mMaxLength( 128 )
+		, mWidth( 16.0f )
+		{}
 
-		const int mMaxLength = 128;
-		const float mWidth = 16.f;
+		const unsigned short mMaxLength;
+		const float mWidth;
 
 		std::deque< ci::Vec3f > mLoc;
+
+		bool mActive;
 };
 

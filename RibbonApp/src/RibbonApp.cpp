@@ -25,7 +25,9 @@
 
 #include "mndlkit/params/PParams.h"
 
-#include "Ribbon.h"
+#include "NIUser.h"
+
+#define USE_KINECT_RECORD 1
 
 using namespace ci;
 using namespace ci::app;
@@ -34,11 +36,14 @@ using namespace std;
 class RibbonApp : public AppBasic
 {
 	public:
+		RibbonApp();
+
 		void prepareSettings( Settings *settings );
 		void setup();
 		void shutdown();
 
 		void keyDown( KeyEvent event );
+		void keyUp( KeyEvent event );
 		void mouseDown( MouseEvent event );
 		void mouseDrag( MouseEvent event );
 		void resize();
@@ -50,10 +55,10 @@ class RibbonApp : public AppBasic
 		mndl::params::PInterfaceGl mParams;
 
 		float mFps;
-		bool mVerticalSyncEnabled = false;
+		bool mVerticalSyncEnabled;
 
-		MayaCamUI mMayaCam;
-		RibbonRef mRibbonRef;
+		MayaCamUI    mMayaCam;
+		UserManager  mUserManager;
 
 		Vec3f mLightDirection;
 		Color mLightAmbient;
@@ -66,6 +71,11 @@ class RibbonApp : public AppBasic
 		float mMaterialShininess;
 };
 
+RibbonApp::RibbonApp()
+: mVerticalSyncEnabled( false )
+{
+}
+
 void RibbonApp::prepareSettings( Settings *settings )
 {
 	settings->setWindowSize( 800, 600 );
@@ -74,7 +84,7 @@ void RibbonApp::prepareSettings( Settings *settings )
 void RibbonApp::setup()
 {
 	mndl::params::PInterfaceGl::load( "params.xml" );
-	mParams = mndl::params::PInterfaceGl( "Parameters", Vec2i( 200, 300 ) );
+	mParams = mndl::params::PInterfaceGl( "Parameters", Vec2i( 200, 300 ), Vec2i( 16, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 
 	mParams.addParam( "Fps", &mFps, "", true );
@@ -100,7 +110,21 @@ void RibbonApp::setup()
 	gl::enableDepthRead();
 	gl::enableDepthWrite();
 
-	mRibbonRef = Ribbon::create();
+	try
+	{
+#if USE_KINECT_RECORD == 0
+		mUserManager.setup();
+#else
+		// use openni recording
+		fs::path recordingPath = getAssetPath( "test.oni" );
+		mUserManager.setup( recordingPath );
+#endif /* USE_KINECT_RECORD */
+	}
+	catch ( const exception &exc )
+	{
+		console() << exc.what() << endl;
+		quit();
+	}
 }
 
 void RibbonApp::update()
@@ -110,12 +134,14 @@ void RibbonApp::update()
 	if ( mVerticalSyncEnabled != gl::isVerticalSyncEnabled() )
 		gl::enableVerticalSync( mVerticalSyncEnabled );
 
-	double t = getElapsedSeconds();
-	Vec3f pos( math< double >::cos( t * 3.9723231 ),
-			   math< double >::sin( t * 5.7995332 ),
-			   math< double >::cos( t * 7.6623417 ) );
+	mUserManager.update();
 
-	mRibbonRef->update( Vec3f( 0, 0, 800 ) + pos * 150.f );
+// 	double t = getElapsedSeconds();
+// 	Vec3f pos( math< double >::cos( t * 3.9723231 ),
+// 			   math< double >::sin( t * 5.7995332 ),
+// 			   math< double >::cos( t * 7.6623417 ) );
+// 
+// 	mRibbonRef->update( Vec3f( 0, 0, 800 ) + pos * 150.f );
 }
 
 void RibbonApp::draw()
@@ -125,6 +151,7 @@ void RibbonApp::draw()
 	gl::setMatrices( mMayaCam.getCamera() );
 
 	gl::color( Color::white() );
+//	mRibbonRef->draw();
 
 	Vec3f cameraRight, cameraUp;
 	mMayaCam.getCamera().getBillboardVectors( &cameraRight, &cameraUp );
@@ -145,7 +172,7 @@ void RibbonApp::draw()
 	material.apply();
 
 	gl::enable( GL_LIGHTING );
-	mRibbonRef->draw( cameraDir );
+	mUserManager.draw( cameraDir );
 	gl::disable( GL_LIGHTING );
 
 	mParams.draw();
@@ -186,6 +213,10 @@ void RibbonApp::keyDown( KeyEvent event )
 			 mVerticalSyncEnabled = !mVerticalSyncEnabled;
 			 break;
 
+		case KeyEvent::KEY_SPACE:
+			mUserManager.clearRibbons();
+			break;
+
 		case KeyEvent::KEY_ESCAPE:
 			quit();
 			break;
@@ -193,6 +224,11 @@ void RibbonApp::keyDown( KeyEvent event )
 		default:
 			break;
 	}
+}
+
+void RibbonApp::keyUp( KeyEvent event )
+{
+	mUserManager.keyUp( event );
 }
 
 void RibbonApp::mouseDown( MouseEvent event )

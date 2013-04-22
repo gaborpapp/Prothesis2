@@ -6,6 +6,9 @@ using namespace ci;
 
 void Ribbon::update( const Vec3f &pos )
 {
+	if( ! mActive )
+		return;
+
 	mLoc.push_back( pos );
 
 	if ( mLoc.size() > mMaxLength )
@@ -16,6 +19,12 @@ void Ribbon::update( const Vec3f &pos )
 
 void Ribbon::draw( const ci::Vec3f &cameraDir )
 {
+	if( ! mActive )
+		return;
+
+	if( mLoc.size() == 0 )
+		return;
+
 	/*
 	gl::begin( GL_LINE_STRIP );
 	for ( int i = 0; i < mLoc.size(); i++ )
@@ -26,7 +35,7 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 	*/
 
 	gl::begin( GL_QUAD_STRIP );
-	int i = 0;
+	unsigned short i = 0;
 	Vec3f dir, off, n;
 	Vec3f normal;
 	for ( ; i < mLoc.size() - 1; i++ )
@@ -57,7 +66,7 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 	/*
 	gl::disable( GL_LIGHTING );
 	gl::color( Color( 1, 0, 0 ) );
-	for ( int i = 0; i < mLoc.size() - 1; i++ )
+	for ( unsigned short i = 0; i < mLoc.size() - 1; i++ )
 	{
 		dir = mLoc[ i + 1 ] - mLoc[ i ];
 		n = dir.cross( cameraDir );
@@ -68,4 +77,25 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 	}
 	gl::end();
 	*/
+}
+
+void Ribbon::clear()
+{
+	mLoc.clear();
+}
+
+void Ribbon::setActive( bool active )
+{
+	if( mActive != active )
+	{
+		mActive = active;
+
+		if( ! mActive )
+			clear();
+	}
+}
+
+bool Ribbon::getActive() const
+{
+	return mActive;
 }
