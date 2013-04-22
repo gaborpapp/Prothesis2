@@ -270,8 +270,11 @@ void UserManager::update()
 
 void UserManager::draw( const Vec3f& cameraDir )
 {
-	drawRibbon( cameraDir );
-	drawBody();
+	{
+		std::lock_guard< std::mutex > lock( mMutexUser );
+		drawRibbon( cameraDir );
+		drawBody();
+	}
 }
 
 void UserManager::drawRibbon( const ci::Vec3f& cameraDir )
@@ -400,13 +403,19 @@ void UserManager::calibrationBeg( UserTracker::UserEvent event )
 void UserManager::calibrationEnd( UserTracker::UserEvent event )
 {
 	console() << "app calib end: " << event.id << endl;
-	createUser( event.id );
+	{
+		std::lock_guard< std::mutex > lock( mMutexUser );
+		createUser( event.id );
+	}
 }
 
 void UserManager::lostUser( UserTracker::UserEvent event )
 {
 	console() << "lost user: " << event.id << endl;
-	destroyUser( event.id );
+	{
+		std::lock_guard< std::mutex > lock( mMutexUser );
+		destroyUser( event.id );
+	}
 }
 
 void UserManager::keyUp( KeyEvent event )

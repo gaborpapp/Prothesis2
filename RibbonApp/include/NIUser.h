@@ -115,6 +115,7 @@ private:
 
 	std::shared_ptr< std::thread > mThread;
 	std::mutex                 mMutex;
+	std::mutex                 mMutexUser;
 	void                       openKinect( const ci::fs::path &path );
 
 	Users                      mUsers;
