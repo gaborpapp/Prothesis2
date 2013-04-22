@@ -275,6 +275,7 @@ void UserManager::draw( const Vec3f& cameraDir )
 		drawRibbon( cameraDir );
 		drawBody();
 	}
+	mParams.draw();
 }
 
 void UserManager::drawRibbon( const ci::Vec3f& cameraDir )
