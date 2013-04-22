@@ -14,12 +14,13 @@ class Ribbon
 
 		void update( const ci::Vec3f &pos );
 
-		void draw();
+		void draw( const ci::Vec3f &cameraDir );
 
 	protected:
 		Ribbon() {}
 
 		const int mMaxLength = 128;
+		const float mWidth = 16.f;
 
 		std::deque< ci::Vec3f > mLoc;
 };

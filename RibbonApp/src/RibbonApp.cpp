@@ -18,7 +18,10 @@
 #include "cinder/Cinder.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Light.h"
+#include "cinder/gl/Material.h"
 #include "cinder/MayaCamUI.h"
+#include "cinder/Quaternion.h"
 
 #include "mndlkit/params/PParams.h"
 
@@ -51,6 +54,16 @@ class RibbonApp : public AppBasic
 
 		MayaCamUI mMayaCam;
 		RibbonRef mRibbonRef;
+
+		Vec3f mLightDirection;
+		Color mLightAmbient;
+		Color mLightDiffuse;
+		Color mLightSpecular;
+
+		Color mMaterialAmbient;
+		Color mMaterialDiffuse;
+		Color mMaterialSpecular;
+		float mMaterialShininess;
 };
 
 void RibbonApp::prepareSettings( Settings *settings )
@@ -66,6 +79,17 @@ void RibbonApp::setup()
 
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addParam( "Vertical sync", &mVerticalSyncEnabled );
+	mParams.addSeparator();
+	mParams.addPersistentParam( "Light direction", &mLightDirection, -Vec3f::zAxis() );
+	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
+	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
+	mParams.addPersistentParam( "Light specular", &mLightDiffuse, Color::white() );
+	mParams.addSeparator();
+	mParams.addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
+	mParams.addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
+	mParams.addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
+	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
+	mParams.addSeparator();
 
 	CameraPersp cam;
 	cam.setPerspective( 60, getWindowAspectRatio(), 1, 15000 );
@@ -101,7 +125,28 @@ void RibbonApp::draw()
 	gl::setMatrices( mMayaCam.getCamera() );
 
 	gl::color( Color::white() );
-	mRibbonRef->draw();
+
+	Vec3f cameraRight, cameraUp;
+	mMayaCam.getCamera().getBillboardVectors( &cameraRight, &cameraUp );
+	Vec3f cameraDir = cameraUp.cross( cameraRight );
+
+	// setup light 0
+	gl::Light light( gl::Light::DIRECTIONAL, 0 );
+	//light.setDirection( mLightDirection );
+	Quatf q( -Vec3f::zAxis(), mLightDirection );
+	light.setDirection( -cameraDir * q );
+	light.setAmbient( mLightAmbient );
+	light.setDiffuse( mLightDiffuse );
+	light.setSpecular( mLightSpecular );
+	light.enable();
+
+	gl::Material material( mMaterialAmbient, mMaterialDiffuse, mMaterialSpecular );
+	material.setShininess( mMaterialShininess );
+	material.apply();
+
+	gl::enable( GL_LIGHTING );
+	mRibbonRef->draw( cameraDir );
+	gl::disable( GL_LIGHTING );
 
 	mParams.draw();
 }
