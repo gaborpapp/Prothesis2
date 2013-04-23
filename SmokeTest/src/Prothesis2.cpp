@@ -363,7 +363,7 @@ void Prothesis2App::draw()
 		}
 	}
 
-	mndl::params::PInterfaceGl::draw();
+	mParams.draw();
 }
 
 void Prothesis2App::shutdown()
