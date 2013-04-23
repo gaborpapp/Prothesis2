@@ -318,27 +318,15 @@ void SkelMeshApp::draw()
 		}
 	}
 	*/
-	XnSkeletonJoint edges[][2] = {
-		{ XN_SKEL_HEAD, XN_SKEL_NECK },
-		{ XN_SKEL_NECK, XN_SKEL_LEFT_SHOULDER },
-		{ XN_SKEL_LEFT_SHOULDER, XN_SKEL_LEFT_ELBOW },
-		{ XN_SKEL_LEFT_ELBOW, XN_SKEL_LEFT_HAND },
-		{ XN_SKEL_NECK, XN_SKEL_RIGHT_SHOULDER },
-		{ XN_SKEL_RIGHT_SHOULDER, XN_SKEL_RIGHT_ELBOW },
-		{ XN_SKEL_RIGHT_ELBOW, XN_SKEL_RIGHT_HAND },
-		{ XN_SKEL_LEFT_SHOULDER, XN_SKEL_TORSO },
-		{ XN_SKEL_RIGHT_SHOULDER, XN_SKEL_TORSO },
-		{ XN_SKEL_TORSO, XN_SKEL_LEFT_HIP },
-		{ XN_SKEL_LEFT_HIP, XN_SKEL_RIGHT_HIP },
-		{ XN_SKEL_LEFT_HIP, XN_SKEL_LEFT_KNEE },
-		{ XN_SKEL_LEFT_KNEE, XN_SKEL_LEFT_FOOT },
-		{ XN_SKEL_TORSO, XN_SKEL_RIGHT_HIP },
-		{ XN_SKEL_RIGHT_HIP, XN_SKEL_RIGHT_KNEE },
-		{ XN_SKEL_RIGHT_KNEE, XN_SKEL_RIGHT_FOOT } };
-
+	// this translates the params optionmenu index to the skeleton joint id, the order is important
+	XnSkeletonJoint paramsIdToJoint[] = { XN_SKEL_HEAD, XN_SKEL_NECK, XN_SKEL_TORSO,
+		XN_SKEL_LEFT_SHOULDER, XN_SKEL_LEFT_ELBOW, XN_SKEL_LEFT_HAND,
+		XN_SKEL_RIGHT_SHOULDER, XN_SKEL_RIGHT_ELBOW, XN_SKEL_RIGHT_HAND,
+		XN_SKEL_LEFT_HIP, XN_SKEL_LEFT_KNEE, XN_SKEL_LEFT_FOOT,
+		XN_SKEL_RIGHT_HIP, XN_SKEL_RIGHT_KNEE, XN_SKEL_RIGHT_FOOT };
 	TriMesh mesh;
 	size_t currentId = 0;
-	for ( int e = 0; e < sizeof( edges ) / sizeof( edges[ 0 ] ); e++ )
+	for ( int e = 0; e < mEdgeNum; e++ )
 	{
 		for ( int ii = mCurrentPosition - mStoredPositions + 1; ii < mCurrentPosition; ii++ )
 		{
@@ -349,8 +337,8 @@ void SkelMeshApp::draw()
 			if ( last < 0 )
 				last += mMaxPositions;
 
-			XnSkeletonJoint id0 = edges[ e ][ 0 ];
-			XnSkeletonJoint id1 = edges[ e ][ 1 ];
+			XnSkeletonJoint id0 = paramsIdToJoint[ mEdges[ e ].mJoint0 ];
+			XnSkeletonJoint id1 = paramsIdToJoint[ mEdges[ e ].mJoint1 ];
 
 			if ( ( mPositions[ current ].mConf[ id0 ] > .9f ) &&
 				 ( mPositions[ current ].mConf[ id1 ] > .9f ) &&
