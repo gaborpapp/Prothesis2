@@ -16,6 +16,7 @@
 */
 
 #include <string>
+#include <boost/assign/std/vector.hpp>
 
 #include "cinder/Cinder.h"
 #include "cinder/app/AppBasic.h"
@@ -37,7 +38,7 @@ void SkelMeshEffect::setup()
 {
 	mEdges.resize( MAX_EDGE_NUM );
 
-	mParams = mndl::params::PInterfaceGl( "SkelMesh", Vec2i( 200, 300 ) );
+	mParams = mndl::params::PInterfaceGl( "SkelMesh Effect", Vec2i( 200, 300 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addPersistentParam( "Trail size", &mTrailSize, 256, "min=1 max=1024" );
 	mParams.addSeparator();
@@ -84,11 +85,16 @@ void SkelMeshEffect::setup()
 	// TODO: add mouse callbacks
 }
 
+using namespace boost::assign;
 void SkelMeshEffect::addEdge( int edgeId )
 {
-	vector< string> jointNames = { "head", "neck", "torso", "left shoulder",
+// 	vector< string> jointNames = { "head", "neck", "torso", "left shoulder",
+// 		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",
+// 		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot" };
+	vector< string > jointNames;
+	jointNames += "head", "neck", "torso", "left shoulder",
 		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",
-		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot" };
+		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot";
 
 	string edgeName = "Edge " + toString< int >( edgeId );
 	mEdgeParams.addText( edgeName );
@@ -112,7 +118,8 @@ void SkelMeshEffect::rebuildEdgeParams()
 
 	mEdgeParams.addButton( "Add edge", [this]()
 			{
-				mEdges[ mEdgeNum ] = Edge();
+				Edge edge;
+				mEdges[ mEdgeNum ] = edge;
 				mEdgeNum++;
 				rebuildEdgeParams();
 			} );
@@ -186,7 +193,8 @@ void SkelMeshEffect::update()
 		}
 	}
 
-	mMeshes.push_back( gl::VboMesh::create( mesh ) );
+	if( mesh.getNumVertices() )
+		mMeshes.push_back( gl::VboMesh::create( mesh ) );
 	while ( mMeshes.size() > mTrailSize )
 	{
 		mMeshes.pop_front();

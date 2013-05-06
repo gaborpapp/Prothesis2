@@ -17,6 +17,7 @@
 
 #include <deque>
 #include <vector>
+#include <boost/assign/std/vector.hpp>
 
 #include "cinder/Cinder.h"
 #include "cinder/app/AppBasic.h"
@@ -41,6 +42,7 @@ using namespace std;
 class SkelMeshApp : public AppBasic
 {
 	public:
+		SkelMeshApp();
 		void prepareSettings( Settings *settings );
 		void setup();
 
@@ -112,8 +114,8 @@ class SkelMeshApp : public AppBasic
 		void rebuildEdgeParams();
 		void removeEdgeFromParams( int edgeId );
 
-		int mEdgeNum = 0;
-		const int MAX_EDGE_NUM = 128;
+		int mEdgeNum;
+		const int MAX_EDGE_NUM;
 
 		struct Edge
 		{
@@ -126,6 +128,12 @@ class SkelMeshApp : public AppBasic
 		void saveConfig();
 		fs::path mConfigFile;
 };
+
+SkelMeshApp::SkelMeshApp()
+	: mEdgeNum( 0 )
+	, MAX_EDGE_NUM( 128 )
+{
+}
 
 void SkelMeshApp::prepareSettings( Settings *settings )
 {
@@ -208,11 +216,16 @@ void SkelMeshApp::setup()
 	mMayaCam.setCurrentCam( cam );
 }
 
+using namespace boost::assign;
 void SkelMeshApp::addEdge( int edgeId )
 {
-	vector< string> jointNames = { "head", "neck", "torso", "left shoulder",
+// 	vector< string> jointNames = { "head", "neck", "torso", "left shoulder",
+// 		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",
+// 		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot" };
+	vector< string > jointNames;
+	jointNames += "head", "neck", "torso", "left shoulder",
 		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",
-		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot" };
+		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot";
 
 	string edgeName = "Edge " + toString< int >( edgeId );
 	mEdgeParams.addText( edgeName );
@@ -236,7 +249,8 @@ void SkelMeshApp::rebuildEdgeParams()
 
 	mEdgeParams.addButton( "Add edge", [this]()
 			{
-				mEdges[ mEdgeNum ] = Edge();
+				Edge edge;
+				mEdges[ mEdgeNum ] = edge;
 				mEdgeNum++;
 				rebuildEdgeParams();
 			} );
@@ -374,7 +388,8 @@ void SkelMeshApp::draw()
 		}
 	}
 
-	mMeshes.push_back( gl::VboMesh::create( mesh ) );
+	if( mesh.getNumVertices() )
+		mMeshes.push_back( gl::VboMesh::create( mesh ) );
 	while ( mMeshes.size() > mTrailSize )
 	{
 		mMeshes.pop_front();

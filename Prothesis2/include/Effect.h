@@ -37,6 +37,9 @@ class Effect {
 
 		virtual void shutdown() {};
 
+		virtual void mouseDown( ci::app::MouseEvent event ) {};
+		virtual void mouseDrag( ci::app::MouseEvent event ) {};
+
 	protected:
 		Effect( const std::string &name ) : mName( name ) {}
 

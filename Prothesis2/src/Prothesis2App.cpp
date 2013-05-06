@@ -30,6 +30,7 @@
 #include "BlackEffect.h"
 #include "SkelMeshEffect.h"
 #include "SmokeEffect.h"
+#include "RibbonEffect.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -43,6 +44,8 @@ class Prothesis2App : public AppBasic
 		void shutdown();
 
 		void keyDown( KeyEvent event );
+		void mouseDown( ci::app::MouseEvent event );
+		void mouseDrag( ci::app::MouseEvent event );
 
 		void update();
 		void draw();
@@ -99,6 +102,7 @@ void Prothesis2App::setup()
 	mEffects.push_back( BlackEffect::create() );
 	mEffects.push_back( SmokeEffect::create() );
 	mEffects.push_back( SkelMeshEffect::create() );
+	mEffects.push_back( RibbonEffect::create() );
 
 	vector< string > effectNames;
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
@@ -199,6 +203,16 @@ void Prothesis2App::drawControl()
 	{
 		(*it)->drawControl();
 	}
+}
+
+void Prothesis2App::mouseDown( ci::app::MouseEvent event )
+{
+	mEffects[ mEffectIndex ]->mouseDown( event );
+}
+
+void Prothesis2App::mouseDrag( ci::app::MouseEvent event )
+{
+	mEffects[ mEffectIndex ]->mouseDrag( event );
 }
 
 void Prothesis2App::keyDown( KeyEvent event )

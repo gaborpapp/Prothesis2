@@ -9,14 +9,15 @@
 #include "cinder/MayaCamUI.h"
 
 #include "Effect.h"
+#include "RibbonManager.h"
 
-class SkelMeshEffect;
-typedef std::shared_ptr< SkelMeshEffect > SkelMeshEffectRef;
+class RibbonEffect;
+typedef std::shared_ptr< RibbonEffect > RibbonEffectRef;
 
-class SkelMeshEffect: public Effect
+class RibbonEffect: public Effect
 {
 	public:
-		static SkelMeshEffectRef create() { return SkelMeshEffectRef( new SkelMeshEffect() ); }
+		static RibbonEffectRef create() { return RibbonEffectRef( new RibbonEffect() ); }
 
 		void setup();
 
@@ -31,11 +32,13 @@ class SkelMeshEffect: public Effect
 		void shutdown();
 
 	private:
-		SkelMeshEffect() : Effect( "SkelMesh" ), mEdgeNum( 0 ), MAX_EDGE_NUM( 128 ) {}
+		RibbonEffect() : Effect( "Ribbon" ) {}
 
 		mndl::params::PInterfaceGl mEdgeParams;
 
 		ci::MayaCamUI mMayaCam;
+
+		RibbonManager mRibbonManager;
 
 #define XN_SKEL_MIN XN_SKEL_HEAD // NOTE: starts at 1
 #define XN_SKEL_MAX XN_SKEL_RIGHT_FOOT
@@ -68,33 +71,5 @@ class SkelMeshEffect: public Effect
 		ci::Color mMaterialDiffuse;
 		ci::Color mMaterialSpecular;
 		float mMaterialShininess;
-
-		ci::Color mTrailMaterialAmbient;
-		ci::Color mTrailMaterialDiffuse;
-		ci::Color mTrailMaterialSpecular;
-		float mTrailMaterialShininess;
-
-		int mTrailSize;
-		std::deque< ci::gl::VboMeshRef > mMeshes;
-
-		ci::gl::GlslProg mPhongShader;
-
-		void addEdge( int edgeId );
-		void rebuildEdgeParams();
-		void removeEdgeFromParams( int edgeId );
-
-		int mEdgeNum;
-		const int MAX_EDGE_NUM;
-
-		struct Edge
-		{
-			Edge() : mJoint0( 0 ), mJoint1( 0 ) {}
-			int mJoint0, mJoint1;
-		};
-		std::vector< Edge > mEdges;
-
-		void loadConfig( const ci::fs::path &fname );
-		void saveConfig();
-		ci::fs::path mConfigFile;
 };
 
