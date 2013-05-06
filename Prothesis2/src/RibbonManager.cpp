@@ -1,3 +1,4 @@
+#include "GlobalData.h"
 #include "RibbonManager.h"
 
 using namespace std;
@@ -6,7 +7,7 @@ using namespace ci::app;
 
 void RibbonManager::setup()
 {
-	mParams = mndl::params::PInterfaceGl( "RibbonManager", Vec2i( 200, 150 ) );
+	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "RibbonManager", Vec2i( 200, 150 ) );
 	mParams.addPersistentSizeAndPosition();
 
 	mParams.addPersistentParam( "Max length"  , &mMaxLength  , 32   , "min= 10    max= 1000  step= 1"    );

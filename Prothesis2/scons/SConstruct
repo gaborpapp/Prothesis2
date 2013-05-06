@@ -5,6 +5,7 @@ env['APP_SOURCES'] = ['Prothesis2App.cpp']
 env['APP_SOURCES'] += ['SmokeEffect.cpp', 'FluidParticles.cpp']
 env['APP_SOURCES'] += ['SkelMeshEffect.cpp']
 env['RESOURCES'] = ['shaders/PhongDirectional.*']
+env['APP_SOURCES'] += ['Ribbon.cpp', 'RibbonEffect.cpp', 'RibbonManager.cpp']
 env['DEBUG'] = 0
 
 env = SConscript('../../../../blocks/MndlKit/scons/SConscript', exports = 'env')

@@ -13,7 +13,7 @@ using namespace std;
 
 void SmokeEffect::setup()
 {
-	mParams = mndl::params::PInterfaceGl( "Smoke Effect", Vec2i( 332, 560 ), Vec2i( 342, 16 ) );
+	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Smoke Effect", Vec2i( 332, 560 ), Vec2i( 342, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 
 	mParams.addText("Optical flow");

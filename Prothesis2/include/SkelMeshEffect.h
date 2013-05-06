@@ -31,7 +31,7 @@ class SkelMeshEffect: public Effect
 		void shutdown();
 
 	private:
-		SkelMeshEffect() : Effect( "SkelMesh" ), mEdgeNum( 0 ), MAX_EDGE_NUM( 128 ) {}
+		SkelMeshEffect() : Effect( "SkelMesh" ), mEdgeNum( 0 ) {}
 
 		mndl::params::PInterfaceGl mEdgeParams;
 
@@ -83,8 +83,8 @@ class SkelMeshEffect: public Effect
 		void rebuildEdgeParams();
 		void removeEdgeFromParams( int edgeId );
 
+#define MAX_EDGE_NUM 128
 		int mEdgeNum;
-		const int MAX_EDGE_NUM;
 
 		struct Edge
 		{
