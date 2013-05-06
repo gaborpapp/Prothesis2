@@ -19,6 +19,7 @@ class SkelMeshEffect: public Effect
 		static SkelMeshEffectRef create() { return SkelMeshEffectRef( new SkelMeshEffect() ); }
 
 		void setup();
+
 		void update();
 
 		void draw();

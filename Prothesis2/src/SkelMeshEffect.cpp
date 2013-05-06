@@ -268,6 +268,7 @@ void SkelMeshEffect::draw()
 	if ( mPhongShader )
 		mPhongShader.unbind();
 	gl::disable( GL_LIGHTING );
+	gl::disable( GL_CULL_FACE );
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 }
