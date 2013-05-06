@@ -59,6 +59,12 @@ class Prothesis2App : public AppBasic
 		int mPrevEffectIndex;
 
 		gl::Fbo mFbo;
+
+		// openni
+		std::thread mKinectThread;
+		std::string mKinectProgress;
+		void openKinect( const ci::fs::path &path = ci::fs::path() );
+
 };
 
 void Prothesis2App::prepareSettings( Settings *settings )
@@ -78,6 +84,12 @@ void Prothesis2App::setup()
 	mParams.addPersistentSizeAndPosition();
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
+
+	// OpenNI
+	mKinectProgress = "Connecting...\0\0\0\0\0\0\0\0\0";
+	mParams.addParam( "Kinect", &mKinectProgress, "", true );
+	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, ci::fs::path() ) );
+
 	mParams.addSeparator();
 
 	// output fbo
@@ -187,6 +199,41 @@ void Prothesis2App::keyDown( KeyEvent event )
 void Prothesis2App::shutdown()
 {
 	mndl::params::PInterfaceGl::save();
+
+	mKinectThread.join();
+	if ( GlobalData::get().mNI )
+		GlobalData::get().mNI.stop();
+}
+
+void Prothesis2App::openKinect( const ci::fs::path &path )
+{
+	try
+	{
+		mndl::ni::OpenNI kinect;
+		mndl::ni::OpenNI::Options options;
+		options.enableDepth( true ).enableUserTracker( false );
+
+		if ( path.empty() )
+			kinect = mndl::ni::OpenNI( mndl::ni::OpenNI::Device(), options );
+		else
+			kinect = mndl::ni::OpenNI( path );
+		GlobalData::get().mNI = kinect;
+	}
+	catch ( const mndl::ni::OpenNIExc &exc )
+	{
+		if ( path.empty() )
+			mKinectProgress = "No device detected";
+		else
+			mKinectProgress = "Recording not found";
+		return;
+	}
+
+	if ( path.empty() )
+		mKinectProgress = "Connected";
+	else
+		mKinectProgress = "Recording loaded";
+
+	GlobalData::get().mNI.start();
 }
 
 CINDER_APP_BASIC( Prothesis2App, RendererGl )

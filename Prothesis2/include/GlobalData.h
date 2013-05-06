@@ -2,6 +2,8 @@
 
 #include "cinder/app/App.h"
 
+#include "CiNI.h"
+
 class GlobalData
 {
 	private:
@@ -14,5 +16,7 @@ class GlobalData
 
 		ci::app::WindowRef mOutputWindow;
 		ci::app::WindowRef mControlWindow;
+
+		mndl::ni::OpenNI mNI;
 };
 
