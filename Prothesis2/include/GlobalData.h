@@ -18,5 +18,6 @@ class GlobalData
 		ci::app::WindowRef mControlWindow;
 
 		mndl::ni::OpenNI mNI;
+		mndl::ni::UserTracker mNIUserTracker;
 };
 

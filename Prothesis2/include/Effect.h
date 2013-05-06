@@ -29,10 +29,13 @@ class Effect {
 		int getHeight() const { return mSize.y; }
 		ci::Vec2i getSize() const { return mSize; }
 		ci::Area getBounds() const { return ci::Area( 0, 0, mSize.x, mSize.y ); }
+		float getAspectRatio() const { return mSize.x / (float)mSize.y; }
 
 		virtual void update() {};
 		virtual void draw() {};
 		virtual void drawControl() { mParams.draw(); };
+
+		virtual void shutdown() {};
 
 	protected:
 		Effect( const std::string &name ) : mName( name ) {}

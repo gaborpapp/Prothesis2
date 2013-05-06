@@ -3,7 +3,9 @@ env = Environment()
 env['APP_TARGET'] = 'Prothesis2'
 env['APP_SOURCES'] = ['Prothesis2App.cpp']
 env['APP_SOURCES'] += ['SmokeEffect.cpp', 'FluidParticles.cpp']
-env['DEBUG'] = 0
+env['APP_SOURCES'] += ['SkelMeshEffect.cpp']
+env['RESOURCES'] = ['shaders/PhongDirectional.*']
+env['DEBUG'] = 1
 
 env = SConscript('../../../../blocks/MndlKit/scons/SConscript', exports = 'env')
 env = SConscript('../../../../blocks/Cinder-NI/scons/SConscript', exports = 'env')

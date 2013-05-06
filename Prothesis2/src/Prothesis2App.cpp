@@ -28,6 +28,7 @@
 #include "GlobalData.h"
 
 #include "BlackEffect.h"
+#include "SkelMeshEffect.h"
 #include "SmokeEffect.h"
 
 using namespace ci;
@@ -50,7 +51,7 @@ class Prothesis2App : public AppBasic
 		mndl::params::PInterfaceGl mParams;
 
 		float mFps;
-		bool mVerticalSyncEnabled = false;
+		bool mVerticalSyncEnabled;
 
 		void drawControl();
 		void drawOutput();
@@ -64,6 +65,8 @@ class Prothesis2App : public AppBasic
 		// openni
 		std::thread mKinectThread;
 		std::string mKinectProgress;
+		bool mKinectMirrored;
+		float mKinectSmoothing;
 		void openKinect( const ci::fs::path &path = ci::fs::path() );
 
 };
@@ -85,12 +88,6 @@ void Prothesis2App::setup()
 	mParams.addPersistentSizeAndPosition();
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
-
-	// OpenNI
-	mKinectProgress = "Connecting...";
-	mParams.addParam( "Kinect", &mKinectProgress, "", true );
-	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, ci::fs::path() ) );
-
 	mParams.addSeparator();
 
 	// output fbo
@@ -101,6 +98,7 @@ void Prothesis2App::setup()
 	// setup effects
 	mEffects.push_back( BlackEffect::create() );
 	mEffects.push_back( SmokeEffect::create() );
+	mEffects.push_back( SkelMeshEffect::create() );
 
 	vector< string > effectNames;
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
@@ -111,6 +109,15 @@ void Prothesis2App::setup()
 	}
 	mEffectIndex = mPrevEffectIndex = 0;
 	mParams.addParam( "Effect", effectNames, &mEffectIndex );
+	mParams.addSeparator();
+
+	// OpenNI
+	mKinectProgress = "Connecting...";
+	mParams.addText( "Kinect" );
+	mParams.addParam( "Kinect progress", &mKinectProgress, "", true );
+	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, ci::fs::path() ) );
+	mParams.addPersistentParam( "Kinect mirror", &mKinectMirrored, false );
+	mParams.addPersistentParam( "Kinect smoothing", &mKinectSmoothing, 0.7f, "min=0 max=.99 step=.1" );
 	mParams.addSeparator();
 
 	mndl::params::PInterfaceGl::showAllParams( true, true );
@@ -130,6 +137,14 @@ void Prothesis2App::update()
 	}
 	mEffects[ mEffectIndex ]->update();
 	mPrevEffectIndex = mEffectIndex;
+
+	GlobalData &gd = GlobalData::get();
+	if ( gd.mNI )
+	{
+		if ( gd.mNI.isMirrored() != mKinectMirrored )
+			gd.mNI.setMirrored( mKinectMirrored );
+		gd.mNIUserTracker.setSmoothing( mKinectSmoothing );
+	}
 }
 
 void Prothesis2App::draw()
@@ -206,6 +221,10 @@ void Prothesis2App::keyDown( KeyEvent event )
 void Prothesis2App::shutdown()
 {
 	mndl::params::PInterfaceGl::save();
+	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
+	{
+		(*it)->shutdown();
+	}
 
 	mKinectThread.join();
 	if ( GlobalData::get().mNI )
@@ -214,17 +233,18 @@ void Prothesis2App::shutdown()
 
 void Prothesis2App::openKinect( const ci::fs::path &path )
 {
+	GlobalData &gd = GlobalData::get();
 	try
 	{
 		mndl::ni::OpenNI kinect;
 		mndl::ni::OpenNI::Options options;
-		options.enableDepth( true ).enableUserTracker( false );
+		options.enableDepth( true ).enableImage( true ).enableUserTracker( true );
 
 		if ( path.empty() )
 			kinect = mndl::ni::OpenNI( mndl::ni::OpenNI::Device(), options );
 		else
 			kinect = mndl::ni::OpenNI( path );
-		GlobalData::get().mNI = kinect;
+		gd.mNI = kinect;
 	}
 	catch ( const mndl::ni::OpenNIExc &exc )
 	{
@@ -240,7 +260,8 @@ void Prothesis2App::openKinect( const ci::fs::path &path )
 	else
 		mKinectProgress = "Recording loaded";
 
-	GlobalData::get().mNI.start();
+	gd.mNIUserTracker = gd.mNI.getUserTracker();
+	gd.mNI.start();
 }
 
 CINDER_APP_BASIC( Prothesis2App, RendererGl )
