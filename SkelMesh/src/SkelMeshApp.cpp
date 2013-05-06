@@ -137,7 +137,7 @@ void SkelMeshApp::setup()
 	mParams.addPersistentParam( "Light direction", &mLightDirection, Vec3f( 1.42215264, -1.07486057, -0.842143714 ) );
 	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
 	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
-	mParams.addPersistentParam( "Light specular", &mLightDiffuse, Color::white() );
+	mParams.addPersistentParam( "Light specular", &mLightSpecular, Color::white() );
 	mParams.addSeparator();
 	mParams.addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
 	mParams.addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
@@ -164,7 +164,7 @@ void SkelMeshApp::setup()
 
 	try
 	{
-//#define KINECT_USE_RECORDING
+#define KINECT_USE_RECORDING
 #ifndef KINECT_USE_RECORDING
 		mNI = mndl::ni::OpenNI( mndl::ni::OpenNI::Device() );
 #else
