@@ -15,6 +15,7 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <deque>
 #include <vector>
 
 #include "cinder/Cinder.h"
@@ -23,6 +24,7 @@
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Material.h"
 #include "cinder/gl/Light.h"
+#include "cinder/gl/Vbo.h"
 #include "cinder/params/Params.h"
 #include "cinder/MayaCamUI.h"
 #include "cinder/TriMesh.h"
@@ -81,10 +83,8 @@ class SkelMeshApp : public AppBasic
 			float mConf[ XN_SKEL_NUM ];
 		};
 
-		vector< Position > mPositions;
-		int mMaxPositions;
-		int mStoredPositions;
-		int mCurrentPosition;
+		std::shared_ptr< Position > mPositionRef;
+		std::shared_ptr< Position > mPrevPositionRef;
 
 		void updateSkeleton();
 
@@ -97,6 +97,14 @@ class SkelMeshApp : public AppBasic
 		Color mMaterialDiffuse;
 		Color mMaterialSpecular;
 		float mMaterialShininess;
+
+		Color mTrailMaterialAmbient;
+		Color mTrailMaterialDiffuse;
+		Color mTrailMaterialSpecular;
+		float mTrailMaterialShininess;
+
+		int mTrailSize;
+		std::deque< ci::gl::VboMeshRef > mMeshes;
 
 		gl::GlslProg mPhongShader;
 
@@ -134,6 +142,8 @@ void SkelMeshApp::setup()
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
 	mParams.addSeparator();
+	mParams.addPersistentParam( "Trail size", &mTrailSize, 256, "min=1 max=1024" );
+	mParams.addSeparator();
 	mParams.addPersistentParam( "Light direction", &mLightDirection, Vec3f( 1.42215264, -1.07486057, -0.842143714 ) );
 	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
 	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
@@ -144,7 +154,12 @@ void SkelMeshApp::setup()
 	mParams.addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
 	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
 	mParams.addSeparator();
-	mParams.addButton( "Reset", [&]() { mStoredPositions = 0; mCurrentPosition = 0; } );
+	mParams.addPersistentParam( "Trail material ambient", &mTrailMaterialAmbient, Color::black() );
+	mParams.addPersistentParam( "Trail material diffuse", &mTrailMaterialDiffuse, Color::black() );
+	mParams.addPersistentParam( "Trail material specular", &mTrailMaterialSpecular, Color::black() );
+	mParams.addPersistentParam( "Trail material shininess", &mTrailMaterialShininess, 0.f, "min=0 max=10000 step=.5" );
+	mParams.addSeparator();
+	mParams.addButton( "Reset", [&]() { mMeshes.clear(); } );
 
 	mEdgeParams = mndl::params::PInterfaceGl( "Edges", Vec2i( 200, 300 ), Vec2i( 232, 16 ) );
 	mEdgeParams.addPersistentSizeAndPosition();
@@ -191,17 +206,6 @@ void SkelMeshApp::setup()
 	cam.setEyePoint( Vec3f( 0, 0, 0 ) );
 	cam.setCenterOfInterestPoint( Vec3f( 0, 0, 800 ) );
 	mMayaCam.setCurrentCam( cam );
-
-	mStoredPositions = 0;
-	mCurrentPosition = 0;
-	mMaxPositions = 256;
-	mPositions.resize( mMaxPositions );
-	/*
-	for ( int i = 0; i < mMaxPositions; i++ )
-	{
-		mPositions[ i ] = Position();
-	}
-	*/
 }
 
 void SkelMeshApp::addEdge( int edgeId )
@@ -276,17 +280,15 @@ void SkelMeshApp::updateSkeleton()
 		// one user only
 		unsigned userId = users[ 0 ];
 
+		mPrevPositionRef = mPositionRef;
+		mPositionRef = shared_ptr< Position >( new Position() );
 		for ( int i = 0; i < sizeof( jointIds ) / sizeof( jointIds[ 0 ] ); i++ )
 		{
 			XnSkeletonJoint jointId = jointIds[ i ];
-			mPositions[ mCurrentPosition ].mJoints[ jointId ] =
+			mPositionRef->mJoints[ jointId ] =
 				mNIUserTracker.getJoint3d( userId, jointIds[i],
-				&mPositions[ mCurrentPosition ].mConf[ jointId ] );
+				&mPositionRef->mConf[ jointId ] );
 		}
-		mCurrentPosition++;
-		mStoredPositions = math< int >::min( mStoredPositions + 1, mMaxPositions );
-		if ( mCurrentPosition >= mMaxPositions )
-			mCurrentPosition = 0;
 	}
 }
 
@@ -328,34 +330,27 @@ void SkelMeshApp::draw()
 	size_t currentId = 0;
 	for ( int e = 0; e < mEdgeNum; e++ )
 	{
-		for ( int ii = mCurrentPosition - mStoredPositions + 1; ii < mCurrentPosition; ii++ )
+		if ( mPositionRef && mPrevPositionRef )
 		{
-			int current = ii;
-			int last = ii - 1;
-			if ( current < 0 )
-				current += mMaxPositions;
-			if ( last < 0 )
-				last += mMaxPositions;
-
 			XnSkeletonJoint id0 = paramsIdToJoint[ mEdges[ e ].mJoint0 ];
 			XnSkeletonJoint id1 = paramsIdToJoint[ mEdges[ e ].mJoint1 ];
 
-			if ( ( mPositions[ current ].mConf[ id0 ] > .9f ) &&
-				 ( mPositions[ current ].mConf[ id1 ] > .9f ) &&
-				 ( mPositions[ last ].mConf[ id0 ] > .9f ) &&
-				 ( mPositions[ last ].mConf[ id1 ] > .9f ) )
+			if ( ( mPositionRef->mConf[ id0 ] > .9f ) &&
+				 ( mPositionRef->mConf[ id1 ] > .9f ) &&
+				 ( mPrevPositionRef->mConf[ id0 ] > .9f ) &&
+				 ( mPrevPositionRef->mConf[ id1 ] > .9f ) )
 			{
-				mesh.appendVertex( mPositions[ current ].mJoints[ id0 ] );
-				mesh.appendVertex( mPositions[ current ].mJoints[ id1 ] );
-				mesh.appendVertex( mPositions[ last ].mJoints[ id1 ] );
-				mesh.appendVertex( mPositions[ last ].mJoints[ id0 ] );
+				mesh.appendVertex( mPositionRef->mJoints[ id0 ] );
+				mesh.appendVertex( mPositionRef->mJoints[ id1 ] );
+				mesh.appendVertex( mPrevPositionRef->mJoints[ id1 ] );
+				mesh.appendVertex( mPrevPositionRef->mJoints[ id0 ] );
 				mesh.appendTriangle( currentId, currentId + 1, currentId + 2 );
 				mesh.appendTriangle( currentId, currentId + 2, currentId + 3 );
 				currentId += 4;
-				Vec3f edge0 = mPositions[ current ].mJoints[ id0 ] -
-							  mPositions[ current ].mJoints[ id1 ];
-				Vec3f edge1 = mPositions[ current ].mJoints[ id0 ] -
-							  mPositions[ last ].mJoints[ id1 ];
+				Vec3f edge0 = mPositionRef->mJoints[ id0 ] -
+							  mPositionRef->mJoints[ id1 ];
+				Vec3f edge1 = mPositionRef->mJoints[ id0 ] -
+							  mPrevPositionRef->mJoints[ id1 ];
 				Vec3f normal = edge0.cross( edge1 ).normalized();
 				mesh.appendNormal( normal );
 				mesh.appendNormal( normal );
@@ -363,10 +358,10 @@ void SkelMeshApp::draw()
 				mesh.appendNormal( normal );
 
 				// backface
-				mesh.appendVertex( mPositions[ current ].mJoints[ id0 ] );
-				mesh.appendVertex( mPositions[ current ].mJoints[ id1 ] );
-				mesh.appendVertex( mPositions[ last ].mJoints[ id1 ] );
-				mesh.appendVertex( mPositions[ last ].mJoints[ id0 ] );
+				mesh.appendVertex( mPositionRef->mJoints[ id0 ] );
+				mesh.appendVertex( mPositionRef->mJoints[ id1 ] );
+				mesh.appendVertex( mPrevPositionRef->mJoints[ id1 ] );
+				mesh.appendVertex( mPrevPositionRef->mJoints[ id0 ] );
 				mesh.appendTriangle( currentId, currentId + 2, currentId + 1 );
 				mesh.appendTriangle( currentId, currentId + 3, currentId + 2 );
 				currentId += 4;
@@ -379,40 +374,48 @@ void SkelMeshApp::draw()
 		}
 	}
 
+	mMeshes.push_back( gl::VboMesh::create( mesh ) );
+	while ( mMeshes.size() > mTrailSize )
+	{
+		mMeshes.pop_front();
+	}
+
 	// setup light 0
 	gl::Light light( gl::Light::DIRECTIONAL, 0 );
 	light.setDirection( mLightDirection );
 	light.setAmbient( mLightAmbient );
 	light.setDiffuse( mLightDiffuse );
 	light.setSpecular( mLightSpecular );
-	//light.setShadowParams( 60.0f, 5.0f, lightPosition.length() * 1.5f );
 	light.enable();
-
-	gl::Material material( mMaterialAmbient, mMaterialDiffuse, mMaterialSpecular );
-	material.setShininess( mMaterialShininess );
-	material.apply();
 
 	gl::enable( GL_CULL_FACE );
 	gl::enable( GL_LIGHTING );
 	if ( mPhongShader )
 		mPhongShader.bind();
-	if ( mesh.getNumVertices() )
-		gl::draw( mesh );
+
+	if ( !mMeshes.empty() )
+	{
+		float t = 0.f;
+		float step = 1.f / mMeshes.size();
+		for ( auto it = mMeshes.cbegin(); it != mMeshes.cend(); ++it )
+		{
+			Color materialAmbient = lerp( mTrailMaterialAmbient, mMaterialAmbient, t );
+			Color materialDiffuse = lerp( mTrailMaterialDiffuse, mMaterialDiffuse, t );
+			Color materialSpecular = lerp( mTrailMaterialSpecular, mMaterialSpecular, t );
+			float materialShininess = lerp( mTrailMaterialShininess, mMaterialShininess, t );
+
+			gl::Material material( materialAmbient, materialDiffuse, materialSpecular );
+			material.setShininess( materialShininess );
+			material.apply();
+
+			gl::draw( *it );
+			t += step;
+		}
+	}
+
 	if ( mPhongShader )
 		mPhongShader.unbind();
 	gl::disable( GL_LIGHTING );
-
-	/*
-	{
-		const std::vector< Vec3f > &v = mesh.getVertices();
-		const std::vector< Vec3f > &n = mesh.getNormals();
-		gl::color( Color( 1, 0, 0 ) );
-		for ( size_t i = 0; i < n.size(); i++ )
-		{
-			gl::drawVector( v[ i ], v[ i ] + 100 * n[ i ] );
-		}
-	}
-	*/
 
 	mParams.draw();
 	mEdgeParams.draw();
