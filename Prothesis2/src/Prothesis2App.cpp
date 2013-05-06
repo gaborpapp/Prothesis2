@@ -87,7 +87,7 @@ void Prothesis2App::setup()
 	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
 
 	// OpenNI
-	mKinectProgress = "Connecting...\0\0\0\0\0\0\0\0\0";
+	mKinectProgress = "Connecting...";
 	mParams.addParam( "Kinect", &mKinectProgress, "", true );
 	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, ci::fs::path() ) );
 

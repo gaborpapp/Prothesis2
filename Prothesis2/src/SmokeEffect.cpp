@@ -64,6 +64,11 @@ void SmokeEffect::setup()
 	mParticles.setWindowSize( getSize() );
 }
 
+void SmokeEffect::instantiate()
+{
+	mPrevFrame.release();
+}
+
 void SmokeEffect::update()
 {
 	GlobalData &gd = GlobalData::get();
