@@ -27,7 +27,8 @@
 #include "Effect.h"
 #include "GlobalData.h"
 
-#include "Black.h"
+#include "BlackEffect.h"
+#include "SmokeEffect.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -99,12 +100,14 @@ void Prothesis2App::setup()
 
 	// setup effects
 	mEffects.push_back( BlackEffect::create() );
+	mEffects.push_back( SmokeEffect::create() );
 
 	vector< string > effectNames;
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
 	{
 		effectNames.push_back( (*it)->getName() );
 		(*it)->resize( mFbo.getSize() );
+		(*it)->setup();
 	}
 	mEffectIndex = mPrevEffectIndex = 0;
 	mParams.addParam( "Effect", effectNames, &mEffectIndex );
@@ -177,6 +180,10 @@ void Prothesis2App::drawControl()
 	gl::drawStrokedRect( previewRect );
 
 	mParams.draw();
+	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
+	{
+		(*it)->drawControl();
+	}
 }
 
 void Prothesis2App::keyDown( KeyEvent event )

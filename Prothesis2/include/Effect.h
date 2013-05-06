@@ -32,6 +32,7 @@ class Effect {
 
 		virtual void update() {};
 		virtual void draw() {};
+		virtual void drawControl() { mParams.draw(); };
 
 	protected:
 		Effect( const std::string &name ) : mName( name ) {}
