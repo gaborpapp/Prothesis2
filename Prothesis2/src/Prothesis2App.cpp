@@ -20,6 +20,7 @@
 #include "cinder/Cinder.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Fbo.h"
 
 #include "mndlkit/params/PParams.h"
 
@@ -56,6 +57,8 @@ class Prothesis2App : public AppBasic
 		vector< EffectRef > mEffects;
 		int mEffectIndex;
 		int mPrevEffectIndex;
+
+		gl::Fbo mFbo;
 };
 
 void Prothesis2App::prepareSettings( Settings *settings )
@@ -72,11 +75,15 @@ void Prothesis2App::setup()
 	mndl::params::PInterfaceGl::load( "params.xml" );
 
 	mParams = mndl::params::PInterfaceGl( gd.mControlWindow, "Parameters", Vec2i( 310, 300 ), Vec2i( 16, 16 ) );
-	mParams = mndl::params::PInterfaceGl( "Parameters", Vec2i( 310, 300 ), Vec2i( 16, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
 	mParams.addSeparator();
+
+	// output fbo
+	gl::Fbo::Format format;
+	format.setSamples( 4 );
+	mFbo = gl::Fbo( 1024, 768, format );
 
 	// setup effects
 	mEffects.push_back( BlackEffect::create() );
@@ -85,6 +92,7 @@ void Prothesis2App::setup()
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
 	{
 		effectNames.push_back( (*it)->getName() );
+		(*it)->resize( mFbo.getSize() );
 	}
 	mEffectIndex = mPrevEffectIndex = 0;
 	mParams.addParam( "Effect", effectNames, &mEffectIndex );
@@ -127,7 +135,16 @@ void Prothesis2App::draw()
 
 void Prothesis2App::drawOutput()
 {
+	mFbo.bindFramebuffer();
 	gl::clear();
+	mEffects[ mEffectIndex ]->draw();
+	mFbo.unbindFramebuffer();
+
+	gl::setViewport( getWindowBounds() );
+	gl::setMatricesWindow( getWindowSize() );
+	gl::clear();
+	gl::color( Color::white() );
+	gl::draw( mFbo.getTexture(), getWindowBounds() );
 }
 
 void Prothesis2App::drawControl()
@@ -135,6 +152,18 @@ void Prothesis2App::drawControl()
 	gl::setViewport( getWindowBounds() );
 	gl::setMatricesWindow( getWindowSize() );
 	gl::clear();
+
+	// draw preview
+	const int b = 16;
+	const int pw = int( getWindowWidth() * .4f );
+	const int ph = int( pw / (float)mFbo.getAspectRatio() );
+
+	Rectf previewRect( getWindowWidth() - pw - b, b, getWindowWidth() - b, ph + b );
+	gl::color( Color::white() );
+	gl::draw( mFbo.getTexture(), previewRect );
+	gl::drawString( "Preview", previewRect.getUpperLeft() + Vec2f( b, b ) );
+	gl::drawStrokedRect( previewRect );
+
 	mParams.draw();
 }
 

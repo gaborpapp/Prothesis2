@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "cinder/Area.h"
 #include "cinder/Cinder.h"
 #include "cinder/Vector.h"
 
@@ -23,7 +24,11 @@ class Effect {
 		//! Called when the effect becomes inactive.
 		virtual void deinstantiate() {}
 
-		virtual void resize( const ci::Vec2i &size ) {}
+		void resize( const ci::Vec2i &size ) { mSize = size; }
+		int getWidth() const { return mSize.x; }
+		int getHeight() const { return mSize.y; }
+		ci::Vec2i getSize() const { return mSize; }
+		ci::Area getBounds() const { return ci::Area( 0, 0, mSize.x, mSize.y ); }
 
 		virtual void update() {};
 		virtual void draw() {};
@@ -33,5 +38,6 @@ class Effect {
 
 		mndl::params::PInterfaceGl mParams;
 		std::string mName;
+		ci::Vec2i mSize;
 };
 
