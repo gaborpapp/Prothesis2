@@ -39,7 +39,7 @@ void SkelMeshEffect::setup()
 {
 	mEdges.resize( MAX_EDGE_NUM );
 
-	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "SkelMesh Effect", Vec2i( 200, 300 ) );
+	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "SkelMesh Effect", Vec2i( 200, 310 ), Vec2i( 16, 342 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addPersistentParam( "Trail size", &mTrailSize, 256, "min=1 max=1024" );
 	mParams.addSeparator();
@@ -60,7 +60,7 @@ void SkelMeshEffect::setup()
 	mParams.addSeparator();
 	mParams.addButton( "Reset", [&]() { mMeshes.clear(); } );
 
-	mEdgeParams = mndl::params::PInterfaceGl( "SkelMesh Edges", Vec2i( 200, 300 ) );
+	mEdgeParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "SkelMesh Edges", Vec2i( 270, 310 ), Vec2i( 232, 342 ) );
 	mEdgeParams.addPersistentSizeAndPosition();
 
 	loadConfig( "SkelMeshConfig.xml" );

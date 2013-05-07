@@ -83,11 +83,11 @@ void Prothesis2App::setup()
 {
 	GlobalData &gd = GlobalData::get();
 	gd.mOutputWindow = getWindow();
-	gd.mControlWindow = createWindow( Window::Format().size( 1200, 600 ) );
+	gd.mControlWindow = createWindow( Window::Format().size( 1250, 700 ) );
 
 	mndl::params::PInterfaceGl::load( "params.xml" );
 
-	mParams = mndl::params::PInterfaceGl( gd.mControlWindow, "Parameters", Vec2i( 310, 300 ), Vec2i( 16, 16 ) );
+	mParams = mndl::params::PInterfaceGl( gd.mControlWindow, "Parameters", Vec2i( 200, 310 ), Vec2i( 16, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addParam( "Fps", &mFps, "", true );
 	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );

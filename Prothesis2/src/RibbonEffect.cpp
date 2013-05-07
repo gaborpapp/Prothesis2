@@ -37,7 +37,7 @@ using namespace std;
 
 void RibbonEffect::setup()
 {
-	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Ribbon Effect", Vec2i( 200, 300 ) );
+	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Ribbon Effect", Vec2i( 200, 310 ), Vec2i( 518, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addPersistentParam( "Light direction", &mLightDirection, -Vec3f::zAxis() );
 	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
