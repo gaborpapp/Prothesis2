@@ -38,15 +38,19 @@ void RibbonEffect::setup()
 {
 	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Ribbon Effect", Vec2i( 200, 300 ) );
 	mParams.addPersistentSizeAndPosition();
+	/*
 	mParams.addPersistentParam( "Light direction", &mLightDirection, -Vec3f::zAxis() );
 	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
 	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
 	mParams.addPersistentParam( "Light specular", &mLightDiffuse, Color::white() );
 	mParams.addSeparator();
 	mParams.addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
+	*/
 	mParams.addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
+	/*
 	mParams.addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
 	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
+	*/
 	mParams.addSeparator();
 	mParams.addButton( "Reset", [&]() { mRibbonManager.clear(); } );
 
@@ -63,43 +67,11 @@ void RibbonEffect::setup()
 
 void RibbonEffect::update()
 {
-	updateSkeleton();
-
-	// this translates the params optionmenu index to the skeleton joint id, the order is important
-	const XnSkeletonJoint jointIds[] = {
-		XN_SKEL_HEAD, XN_SKEL_NECK, XN_SKEL_TORSO,
-		XN_SKEL_LEFT_SHOULDER, XN_SKEL_LEFT_ELBOW, XN_SKEL_LEFT_HAND,
-		XN_SKEL_RIGHT_SHOULDER, XN_SKEL_RIGHT_ELBOW, XN_SKEL_RIGHT_HAND,
-		XN_SKEL_LEFT_HIP, XN_SKEL_LEFT_KNEE, XN_SKEL_LEFT_FOOT,
-		XN_SKEL_RIGHT_HIP, XN_SKEL_RIGHT_KNEE, XN_SKEL_RIGHT_FOOT };
-
-	if( mPositionRef )
-	{
-		for ( int i = 0; i < sizeof( jointIds ) / sizeof( jointIds[ 0 ] ); i++ )
-		{
-			XnSkeletonJoint jointId = jointIds[ i ];
-
-			if ( mPositionRef->mConf[ jointId ] > .9f )
-			{
-				mRibbonManager.createRibbon( jointId );
-				mRibbonManager.setActive( jointId, true );
-				mRibbonManager.update( jointId, mPositionRef->mJoints[ jointId ] );
-			}
-			else
-			{
-				if( mRibbonManager.findRibbon( jointId ) != RibbonRef() )
-					mRibbonManager.setActive( jointId, false );
-			}
-		}
-	}
-}
-
-void RibbonEffect::updateSkeleton()
-{
 	GlobalData &gd = GlobalData::get();
 	if ( !gd.mNI )
 		return;
 
+	// this translates the params optionmenu index to the skeleton joint id, the order is important
 	const XnSkeletonJoint jointIds[] = {
 		XN_SKEL_HEAD, XN_SKEL_NECK, XN_SKEL_TORSO,
 		XN_SKEL_LEFT_SHOULDER, XN_SKEL_LEFT_ELBOW, XN_SKEL_LEFT_HAND,
@@ -113,14 +85,22 @@ void RibbonEffect::updateSkeleton()
 		// one user only
 		unsigned userId = users[ 0 ];
 
-		mPrevPositionRef = mPositionRef;
-		mPositionRef = shared_ptr< Position >( new Position() );
 		for ( int i = 0; i < sizeof( jointIds ) / sizeof( jointIds[ 0 ] ); i++ )
 		{
 			XnSkeletonJoint jointId = jointIds[ i ];
-			mPositionRef->mJoints[ jointId ] =
-				gd.mNIUserTracker.getJoint3d( userId, jointIds[i],
-				&mPositionRef->mConf[ jointId ] );
+			float jointConf;
+			Vec3f joint3d = gd.mNIUserTracker.getJoint3d( userId, jointIds[ i ], &jointConf );
+			if ( jointConf > .9f )
+			{
+				mRibbonManager.createRibbon( jointId );
+				mRibbonManager.setActive( jointId, true );
+				mRibbonManager.update( jointId, joint3d );
+			}
+			else
+			if ( mRibbonManager.findRibbon( jointId ) != RibbonRef() )
+			{
+				mRibbonManager.setActive( jointId, false );
+			}
 		}
 	}
 }
@@ -134,6 +114,7 @@ void RibbonEffect::draw()
 	gl::enableDepthWrite();
 
 	// setup light 0
+	/*
 	gl::Light light( gl::Light::DIRECTIONAL, 0 );
 	light.setDirection( mLightDirection );
 	light.setAmbient( mLightAmbient );
@@ -143,15 +124,19 @@ void RibbonEffect::draw()
 
 	gl::enable( GL_CULL_FACE );
 	gl::enable( GL_LIGHTING );
+	*/
 
 	Vec3f cameraRight, cameraUp;
 	mMayaCam.getCamera().getBillboardVectors( &cameraRight, &cameraUp );
 	Vec3f cameraDir = cameraUp.cross( cameraRight );
 
+	gl::color( mMaterialDiffuse );
 	mRibbonManager.draw( cameraDir );
 
+	/*
 	gl::disable( GL_LIGHTING );
 	gl::disable( GL_CULL_FACE );
+	*/
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 }
