@@ -195,7 +195,7 @@ void SkelMeshApp::setup()
 #ifdef CINDER_MAC
 		path /= "/../";
 #endif
-		path /= "captured-130404.oni";
+		path /= "test.oni";
 		mNI = mndl::ni::OpenNI( path );
 #endif
 	}

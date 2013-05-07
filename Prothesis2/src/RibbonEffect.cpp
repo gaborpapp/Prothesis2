@@ -83,7 +83,6 @@ void RibbonEffect::setup()
 	cam.setPerspective( 60, getAspectRatio(), 1, 15000 );
 	cam.setEyePoint( Vec3f( 0, 0, 0 ) );
 	cam.setCenterOfInterestPoint( Vec3f( 0, 0, 800 ) );
-	cam.setWorldUp( Vec3f( 0, -1, 0 ) );
 	mMayaCam.setCurrentCam( cam );
 }
 

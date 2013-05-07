@@ -50,6 +50,8 @@ class Prothesis2App : public AppBasic
 		void update();
 		void draw();
 
+		void resize();
+
 	private:
 		mndl::params::PInterfaceGl mParams;
 
@@ -59,10 +61,14 @@ class Prothesis2App : public AppBasic
 		void drawControl();
 		void drawOutput();
 
+		Rectf mPreviewRect;
+
 		vector< EffectRef > mEffects;
 		int mEffectIndex;
 		int mPrevEffectIndex;
 
+#define FBO_WIDTH 1024
+#define FBO_HEIGHT 768
 		gl::Fbo mFbo;
 
 		// openni
@@ -71,7 +77,6 @@ class Prothesis2App : public AppBasic
 		bool mKinectMirrored;
 		float mKinectSmoothing;
 		void openKinect( const ci::fs::path &path = ci::fs::path() );
-
 };
 
 void Prothesis2App::prepareSettings( Settings *settings )
@@ -96,7 +101,7 @@ void Prothesis2App::setup()
 	// output fbo
 	gl::Fbo::Format format;
 	format.setSamples( 4 );
-	mFbo = gl::Fbo( 1024, 768, format );
+	mFbo = gl::Fbo( FBO_WIDTH, FBO_HEIGHT, format );
 
 	// setup effects
 	mEffects.push_back( BlackEffect::create() );
@@ -119,7 +124,17 @@ void Prothesis2App::setup()
 	mKinectProgress = "Connecting...";
 	mParams.addText( "Kinect" );
 	mParams.addParam( "Kinect progress", &mKinectProgress, "", true );
-	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, ci::fs::path() ) );
+//#define USE_KINECT_RECORDING
+#ifdef USE_KINECT_RECORDING
+	fs::path path = getAppPath();
+#ifdef CINDER_MAC
+	path /= "/../";
+#endif
+	path /= "test.oni";
+	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, path ) );
+#else
+	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, fs::path() ) );
+#endif
 	mParams.addPersistentParam( "Kinect mirror", &mKinectMirrored, false );
 	mParams.addPersistentParam( "Kinect smoothing", &mKinectSmoothing, 0.7f, "min=0 max=.99 step=.1" );
 	mParams.addSeparator();
@@ -178,7 +193,12 @@ void Prothesis2App::drawOutput()
 	gl::setMatricesWindow( getWindowSize() );
 	gl::clear();
 	gl::color( Color::white() );
+	// flip fbo texture
+	gl::pushModelView();
+	gl::translate( 0.f, getWindowHeight() );
+	gl::scale( 1.f, -1.f );
 	gl::draw( mFbo.getTexture(), getWindowBounds() );
+	gl::popModelView();
 }
 
 void Prothesis2App::drawControl()
@@ -188,15 +208,15 @@ void Prothesis2App::drawControl()
 	gl::clear();
 
 	// draw preview
-	const int b = 16;
-	const int pw = int( getWindowWidth() * .4f );
-	const int ph = int( pw / (float)mFbo.getAspectRatio() );
-
-	Rectf previewRect( getWindowWidth() - pw - b, b, getWindowWidth() - b, ph + b );
 	gl::color( Color::white() );
-	gl::draw( mFbo.getTexture(), previewRect );
-	gl::drawString( "Preview", previewRect.getUpperLeft() + Vec2f( b, b ) );
-	gl::drawStrokedRect( previewRect );
+	// flip fbo texture
+	gl::pushModelView();
+	gl::translate( 0.f, mPreviewRect.getHeight() + 2 * 16 );
+	gl::scale( 1.f, -1.f );
+	gl::draw( mFbo.getTexture(), mPreviewRect );
+	gl::popModelView();
+	gl::drawString( "Preview", mPreviewRect.getUpperLeft() + Vec2f( 16, 16 ) );
+	gl::drawStrokedRect( mPreviewRect );
 
 	mParams.draw();
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
@@ -205,14 +225,88 @@ void Prothesis2App::drawControl()
 	}
 }
 
-void Prothesis2App::mouseDown( ci::app::MouseEvent event )
+void Prothesis2App::resize()
 {
-	mEffects[ mEffectIndex ]->mouseDown( event );
+	// change preview rect
+	const int b = 16;
+	const int pw = int( getWindowWidth() * .4f );
+	const int ph = int( pw / ( FBO_WIDTH / (float)FBO_HEIGHT ) );
+
+	mPreviewRect = Rectf( getWindowWidth() - pw - b, b, getWindowWidth() - b, ph + b );
+}
+
+void Prothesis2App::mouseDown( MouseEvent event )
+{
+	RectMapping mapping;
+
+	if ( event.getWindow() == GlobalData::get().mControlWindow )
+	{
+		if ( !mPreviewRect.contains( Vec2f( event.getPos() ) ) )
+			return;
+		// map event from preview to fbo area
+		mapping = RectMapping( mPreviewRect, mFbo.getBounds() );
+	}
+	else
+	{
+		// map event from output window to fbo area
+		mapping = RectMapping( GlobalData::get().mOutputWindow->getBounds(), mFbo.getBounds() );
+	}
+
+	Vec2f mappedPos = mapping.map( Vec2f( event.getPos() ) );
+	app::MouseEvent ev( event.getWindow(),
+			( (unsigned)event.isLeft() * MouseEvent::LEFT_DOWN ) |
+			( (unsigned)event.isMiddle() * MouseEvent::MIDDLE_DOWN ) |
+			( (unsigned)event.isRight() * MouseEvent::RIGHT_DOWN ),
+			(int)mappedPos.x, (int)mappedPos.y,
+			( (unsigned)event.isLeftDown() * MouseEvent::LEFT_DOWN ) |
+			( (unsigned)event.isMiddleDown() * MouseEvent::MIDDLE_DOWN ) |
+			( (unsigned)event.isRightDown() * MouseEvent::RIGHT_DOWN ) |
+			( (unsigned)event.isShiftDown() * MouseEvent::SHIFT_DOWN ) |
+			( (unsigned)event.isAltDown() * MouseEvent::ALT_DOWN ) |
+			( (unsigned)event.isControlDown() * MouseEvent::CTRL_DOWN ) |
+			( (unsigned)event.isMetaDown() * MouseEvent::META_DOWN ) |
+			( (unsigned)event.isAccelDown() * MouseEvent::ACCEL_DOWN ),
+			event.getWheelIncrement(),
+			event.getNativeModifiers() );
+
+	mEffects[ mEffectIndex ]->mouseDown( ev );
 }
 
 void Prothesis2App::mouseDrag( ci::app::MouseEvent event )
 {
-	mEffects[ mEffectIndex ]->mouseDrag( event );
+	RectMapping mapping;
+
+	if ( event.getWindow() == GlobalData::get().mControlWindow )
+	{
+		if ( !mPreviewRect.contains( Vec2f( event.getPos() ) ) )
+			return;
+		// map event from preview to fbo area
+		mapping = RectMapping( mPreviewRect, mFbo.getBounds() );
+	}
+	else
+	{
+		// map event from output window to fbo area
+		mapping = RectMapping( GlobalData::get().mOutputWindow->getBounds(), mFbo.getBounds() );
+	}
+
+	Vec2f mappedPos = mapping.map( Vec2f( event.getPos() ) );
+	app::MouseEvent ev( event.getWindow(),
+			( (unsigned)event.isLeft() * MouseEvent::LEFT_DOWN ) |
+			( (unsigned)event.isMiddle() * MouseEvent::MIDDLE_DOWN ) |
+			( (unsigned)event.isRight() * MouseEvent::RIGHT_DOWN ),
+			(int)mappedPos.x, (int)mappedPos.y,
+			( (unsigned)event.isLeftDown() * MouseEvent::LEFT_DOWN ) |
+			( (unsigned)event.isMiddleDown() * MouseEvent::MIDDLE_DOWN ) |
+			( (unsigned)event.isRightDown() * MouseEvent::RIGHT_DOWN ) |
+			( (unsigned)event.isShiftDown() * MouseEvent::SHIFT_DOWN ) |
+			( (unsigned)event.isAltDown() * MouseEvent::ALT_DOWN ) |
+			( (unsigned)event.isControlDown() * MouseEvent::CTRL_DOWN ) |
+			( (unsigned)event.isMetaDown() * MouseEvent::META_DOWN ) |
+			( (unsigned)event.isAccelDown() * MouseEvent::ACCEL_DOWN ),
+			event.getWheelIncrement(),
+			event.getNativeModifiers() );
+
+	mEffects[ mEffectIndex ]->mouseDrag( ev );
 }
 
 void Prothesis2App::keyDown( KeyEvent event )

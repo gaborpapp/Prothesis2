@@ -170,7 +170,7 @@ void SmokeEffect::addToFluid( const Vec2f &pos, const Vec2f &vel, bool addPartic
 void SmokeEffect::draw()
 {
 	gl::setViewport( getBounds() );
-	gl::setMatricesWindow( getSize(), false );
+	gl::setMatricesWindow( getSize() );
 	gl::clear( mBackgroundColor );
 
 	if ( mDrawFluid )
