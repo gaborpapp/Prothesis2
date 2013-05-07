@@ -5,16 +5,6 @@ using namespace std;
 using namespace ci;
 using namespace ci::app;
 
-void RibbonManager::setup()
-{
-	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "RibbonManager", Vec2i( 200, 150 ) );
-	mParams.addPersistentSizeAndPosition();
-
-	mParams.addPersistentParam( "Max length"  , &mMaxLength  , 32   , "min= 10    max= 1000  step= 1"    );
-	mParams.addPersistentParam( "Width"       , &mWidth      , 16.0f, "min= 0.1f  max= 100.0 step= 0.1"  );
-	mParams.addPersistentParam( "Min distance", &mMinDistance, 0.5f , "min= 0.01f max= 10.0  step= 0.01" );
-}
-
 void RibbonManager::update( int id, Vec3f pos )
 {
 	RibbonRef ribbon = findRibbon( id );
@@ -31,11 +21,6 @@ void RibbonManager::draw( const ci::Vec3f& cameraDir )
 
 		ribbon->draw( cameraDir );
 	}
-}
-
-void RibbonManager::drawControl()
-{
-	mParams.draw();
 }
 
 void RibbonManager::setActive( int id, bool active )
@@ -55,14 +40,12 @@ void RibbonManager::clear()
 	}
 }
 
-int RibbonManager::createRibbon( int id )
+RibbonRef RibbonManager::createRibbon( int id )
 {
-	int idRibbon = id;
+	if( ! findRibbon( id ))
+		mRibbons[ id ] = Ribbon::create();
 
-	if( ! findRibbon( idRibbon ))
-		mRibbons[ idRibbon ] = Ribbon::create( this );
-
-	return idRibbon;
+	return mRibbons[ id ];
 }
 
 void RibbonManager::destroyRibbon( int id )
@@ -82,17 +65,3 @@ RibbonRef RibbonManager::findRibbon( int id )
 	return it->second;
 }
 
-int RibbonManager::getMaxLength() const
-{
-	return mMaxLength;
-}
-
-float RibbonManager::getWidth() const
-{
-	return mWidth;
-}
-
-float RibbonManager::getMinDistance() const
-{
-	return mMinDistance;
-}

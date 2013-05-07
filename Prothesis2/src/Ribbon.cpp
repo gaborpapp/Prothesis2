@@ -5,9 +5,12 @@
 
 using namespace ci;
 
-Ribbon::Ribbon( RibbonManager* ribbonManager )
-	: mRibbonManager( ribbonManager )
-	, mActive( true )
+int Ribbon::sMaxLength = 32;
+float Ribbon::sWidth = 16.f;
+float Ribbon::sMinDistance = 0.5f;
+
+Ribbon::Ribbon() :
+	mActive( true )
 {
 }
 
@@ -16,12 +19,12 @@ void Ribbon::update( const Vec3f &pos )
 	if( ! mActive )
 		return;
 
-	if ( !mLoc.empty() && ( mLoc.back().distanceSquared( pos ) < mRibbonManager->getMinDistance() ) )
+	if ( !mLoc.empty() && ( mLoc.back().distanceSquared( pos ) < sMinDistance ) )
 		return;
 
 	mLoc.push_back( pos );
 
-	while ( mLoc.size() > mRibbonManager->getMaxLength() )
+	while ( mLoc.size() > sMaxLength )
 	{
 		mLoc.erase( mLoc.begin() );
 	}
@@ -56,7 +59,7 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 
 		normal = dir.cross( n ).normalized();
 
-		off = n * mRibbonManager->getWidth();
+		off = n * sWidth;
 		glNormal3fv( &normal.x );
 		gl::vertex( mLoc[ i ] - off );
 		glNormal3fv( &normal.x );

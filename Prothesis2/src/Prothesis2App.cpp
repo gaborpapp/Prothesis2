@@ -83,7 +83,7 @@ void Prothesis2App::setup()
 {
 	GlobalData &gd = GlobalData::get();
 	gd.mOutputWindow = getWindow();
-	gd.mControlWindow = createWindow( Window::Format().size( 800, 600 ) );
+	gd.mControlWindow = createWindow( Window::Format().size( 1200, 600 ) );
 
 	mndl::params::PInterfaceGl::load( "params.xml" );
 

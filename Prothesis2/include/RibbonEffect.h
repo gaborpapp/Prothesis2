@@ -29,8 +29,6 @@ class RibbonEffect: public Effect
 		void mouseDown( ci::app::MouseEvent event );
 		void mouseDrag( ci::app::MouseEvent event );
 
-		void shutdown();
-
 	private:
 		RibbonEffect() : Effect( "Ribbon" ) {}
 
@@ -47,5 +45,9 @@ class RibbonEffect: public Effect
 		ci::Color mMaterialDiffuse;
 		ci::Color mMaterialSpecular;
 		float mMaterialShininess;
+
+		int mRibbonMaxLength;
+		float mRibbonWidth;
+		float mRibbonMinPointDistance;
 };
 

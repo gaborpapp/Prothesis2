@@ -52,6 +52,12 @@ void RibbonEffect::setup()
 	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
 	*/
 	mParams.addSeparator();
+	mParams.addText( "Ribbon" );
+	mParams.addPersistentParam( "Ribbon length", &mRibbonMaxLength, 32, "min=10 max=1000" );
+	mParams.addPersistentParam( "Ribbon width", &mRibbonWidth, 16.0f, "min= 0.1f max=100.0 step=0.1" );
+	mParams.addPersistentParam( "Points minimum distance", &mRibbonMinPointDistance, 0.5f, "min= 0.01f max=10.0 step=0.01" );
+
+	mParams.addSeparator();
 	mParams.addButton( "Reset", [&]() { mRibbonManager.clear(); } );
 
 	CameraPersp cam;
@@ -60,9 +66,6 @@ void RibbonEffect::setup()
 	cam.setCenterOfInterestPoint( Vec3f( 0, 0, 800 ) );
 	cam.setWorldUp( Vec3f( 0, -1, 0 ) );
 	mMayaCam.setCurrentCam( cam );
-
-	mRibbonManager.setup();
-	// TODO: add mouse callbacks
 }
 
 void RibbonEffect::update()
@@ -70,6 +73,11 @@ void RibbonEffect::update()
 	GlobalData &gd = GlobalData::get();
 	if ( !gd.mNI )
 		return;
+
+	// update ribbon parameters
+	Ribbon::setMaxLength( mRibbonMaxLength );
+	Ribbon::setWidth( mRibbonWidth );
+	Ribbon::setMinDistance( mRibbonMinPointDistance );
 
 	// this translates the params optionmenu index to the skeleton joint id, the order is important
 	const XnSkeletonJoint jointIds[] = {
@@ -92,9 +100,10 @@ void RibbonEffect::update()
 			Vec3f joint3d = gd.mNIUserTracker.getJoint3d( userId, jointIds[ i ], &jointConf );
 			if ( jointConf > .9f )
 			{
-				mRibbonManager.createRibbon( jointId );
-				mRibbonManager.setActive( jointId, true );
-				mRibbonManager.update( jointId, joint3d );
+				// FIXME: creation and update should be separated
+				RibbonRef ribbon = mRibbonManager.createRibbon( jointId );
+				ribbon->setActive( true );
+				ribbon->update( joint3d );
 			}
 			else
 			if ( mRibbonManager.findRibbon( jointId ) != RibbonRef() )
@@ -144,7 +153,6 @@ void RibbonEffect::draw()
 void RibbonEffect::drawControl()
 {
 	mParams.draw();
-	mRibbonManager.drawControl();
 }
 
 void RibbonEffect::mouseDown( MouseEvent event )
@@ -155,8 +163,4 @@ void RibbonEffect::mouseDown( MouseEvent event )
 void RibbonEffect::mouseDrag( MouseEvent event )
 {
 	mMayaCam.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
-}
-
-void RibbonEffect::shutdown()
-{
 }
