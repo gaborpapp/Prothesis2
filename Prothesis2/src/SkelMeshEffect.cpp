@@ -30,6 +30,7 @@
 #include "GlobalData.h"
 #include "SkelMeshEffect.h"
 
+using namespace boost::assign;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -85,12 +86,8 @@ void SkelMeshEffect::setup()
 	// TODO: add mouse callbacks
 }
 
-using namespace boost::assign;
 void SkelMeshEffect::addEdge( int edgeId )
 {
-// 	vector< string> jointNames = { "head", "neck", "torso", "left shoulder",
-// 		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",
-// 		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot" };
 	vector< string > jointNames;
 	jointNames += "head", "neck", "torso", "left shoulder",
 		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",

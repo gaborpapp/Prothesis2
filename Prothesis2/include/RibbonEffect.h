@@ -49,5 +49,10 @@ class RibbonEffect: public Effect
 		int mRibbonMaxLength;
 		float mRibbonWidth;
 		float mRibbonMinPointDistance;
+
+#define XN_SKEL_MIN XN_SKEL_HEAD // NOTE: starts at 1
+#define XN_SKEL_MAX XN_SKEL_RIGHT_FOOT
+#define XN_SKEL_NUM ( XN_SKEL_RIGHT_FOOT + 1 )
+		bool mRibbonActive[ XN_SKEL_NUM + XN_SKEL_HEAD ];
 };
 

@@ -30,6 +30,7 @@
 #include "GlobalData.h"
 #include "RibbonEffect.h"
 
+using namespace boost::assign;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -38,24 +39,42 @@ void RibbonEffect::setup()
 {
 	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Ribbon Effect", Vec2i( 200, 300 ) );
 	mParams.addPersistentSizeAndPosition();
-	/*
 	mParams.addPersistentParam( "Light direction", &mLightDirection, -Vec3f::zAxis() );
 	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
 	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
 	mParams.addPersistentParam( "Light specular", &mLightDiffuse, Color::white() );
 	mParams.addSeparator();
 	mParams.addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
-	*/
 	mParams.addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
-	/*
 	mParams.addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
 	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
-	*/
 	mParams.addSeparator();
+
 	mParams.addText( "Ribbon" );
 	mParams.addPersistentParam( "Ribbon length", &mRibbonMaxLength, 32, "min=10 max=1000" );
 	mParams.addPersistentParam( "Ribbon width", &mRibbonWidth, 16.0f, "min= 0.1f max=100.0 step=0.1" );
 	mParams.addPersistentParam( "Points minimum distance", &mRibbonMinPointDistance, 0.5f, "min= 0.01f max=10.0 step=0.01" );
+
+	mParams.addSeparator();
+
+	vector< string > jointNames;
+	jointNames += "head", "neck", "torso", "left shoulder",
+		"left elbow", "left hand", "right shoulder", "right elbow", "right hand",
+		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot";
+	const XnSkeletonJoint jointIds[] = {
+		XN_SKEL_HEAD, XN_SKEL_NECK, XN_SKEL_TORSO,
+		XN_SKEL_LEFT_SHOULDER, XN_SKEL_LEFT_ELBOW, XN_SKEL_LEFT_HAND,
+		XN_SKEL_RIGHT_SHOULDER, XN_SKEL_RIGHT_ELBOW, XN_SKEL_RIGHT_HAND,
+		XN_SKEL_LEFT_HIP, XN_SKEL_LEFT_KNEE, XN_SKEL_LEFT_FOOT,
+		XN_SKEL_RIGHT_HIP, XN_SKEL_RIGHT_KNEE, XN_SKEL_RIGHT_FOOT };
+
+	for( size_t i = 0; i < jointNames.size(); i++ )
+	{
+		XnSkeletonJoint jointId = jointIds[ i ];
+		bool defaultValue = ( jointId == XN_SKEL_LEFT_HAND ) || ( jointId == XN_SKEL_RIGHT_HAND );
+
+		mParams.addPersistentParam( jointNames[ i ] + " active", &mRibbonActive[ jointId ], defaultValue );
+	}
 
 	mParams.addSeparator();
 	mParams.addButton( "Reset", [&]() { mRibbonManager.clear(); } );
@@ -102,7 +121,7 @@ void RibbonEffect::update()
 			{
 				// FIXME: creation and update should be separated
 				RibbonRef ribbon = mRibbonManager.createRibbon( jointId );
-				ribbon->setActive( true );
+				ribbon->setActive( mRibbonActive[ jointId ] );
 				ribbon->update( joint3d );
 			}
 			else
@@ -122,30 +141,29 @@ void RibbonEffect::draw()
 	gl::enableDepthRead();
 	gl::enableDepthWrite();
 
+	Vec3f cameraRight, cameraUp;
+	mMayaCam.getCamera().getBillboardVectors( &cameraRight, &cameraUp );
+	Vec3f cameraDir = cameraUp.cross( cameraRight );
+
 	// setup light 0
-	/*
 	gl::Light light( gl::Light::DIRECTIONAL, 0 );
-	light.setDirection( mLightDirection );
+	Quatf q( -Vec3f::zAxis(), mLightDirection );
+	light.setDirection( -cameraDir * q );
+	//light.setDirection( mLightDirection );
 	light.setAmbient( mLightAmbient );
 	light.setDiffuse( mLightDiffuse );
 	light.setSpecular( mLightSpecular );
 	light.enable();
 
-	gl::enable( GL_CULL_FACE );
 	gl::enable( GL_LIGHTING );
-	*/
 
-	Vec3f cameraRight, cameraUp;
-	mMayaCam.getCamera().getBillboardVectors( &cameraRight, &cameraUp );
-	Vec3f cameraDir = cameraUp.cross( cameraRight );
+	gl::Material material( mMaterialAmbient, mMaterialDiffuse, mMaterialSpecular );
+	material.setShininess( mMaterialShininess );
+	material.apply();
 
-	gl::color( mMaterialDiffuse );
 	mRibbonManager.draw( cameraDir );
 
-	/*
 	gl::disable( GL_LIGHTING );
-	gl::disable( GL_CULL_FACE );
-	*/
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 }
