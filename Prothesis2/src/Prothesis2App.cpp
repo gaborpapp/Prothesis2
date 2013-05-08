@@ -336,7 +336,10 @@ void Prothesis2App::shutdown()
 
 	mKinectThread.join();
 	if ( GlobalData::get().mNI )
+	{
 		GlobalData::get().mNI.stop();
+		GlobalData::get().mNI = mndl::ni::OpenNI();
+	}
 }
 
 void Prothesis2App::openKinect( const ci::fs::path &path )
