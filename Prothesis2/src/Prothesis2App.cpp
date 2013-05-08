@@ -227,12 +227,15 @@ void Prothesis2App::drawControl()
 
 void Prothesis2App::resize()
 {
-	// change preview rect
-	const int b = 16;
-	const int pw = int( getWindowWidth() * .4f );
-	const int ph = int( pw / ( FBO_WIDTH / (float)FBO_HEIGHT ) );
+	if ( getWindow() == GlobalData::get().mControlWindow )
+	{
+		// change preview rect
+		const int b = 16;
+		const int pw = int( getWindowWidth() * .4f );
+		const int ph = int( pw / ( FBO_WIDTH / (float)FBO_HEIGHT ) );
 
-	mPreviewRect = Rectf( getWindowWidth() - pw - b, b, getWindowWidth() - b, ph + b );
+		mPreviewRect = Rectf( getWindowWidth() - pw - b, b, getWindowWidth() - b, ph + b );
+	}
 }
 
 void Prothesis2App::mouseDown( MouseEvent event )
