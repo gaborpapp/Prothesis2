@@ -23,11 +23,13 @@
 #include "cinder/gl/Fbo.h"
 
 #include "mndlkit/params/PParams.h"
+#include "mndlkit/gl/fx/KawaseBloom.h"
 
 #include "Effect.h"
 #include "GlobalData.h"
 
 #include "BlackEffect.h"
+#include "Feedback.h"
 #include "SkelMeshEffect.h"
 #include "SmokeEffect.h"
 #include "RibbonEffect.h"
@@ -70,6 +72,7 @@ class Prothesis2App : public AppBasic
 #define FBO_WIDTH 1024
 #define FBO_HEIGHT 768
 		gl::Fbo mFbo;
+		int mFboOutputAttachment;
 
 		// openni
 		std::thread mKinectThread;
@@ -77,6 +80,11 @@ class Prothesis2App : public AppBasic
 		bool mKinectMirrored;
 		float mKinectSmoothing;
 		void openKinect( const ci::fs::path &path = ci::fs::path() );
+
+		FeedbackRef mFeedback;
+		mndl::gl::fx::KawaseBloom mBloom;
+		bool mBloomEnabled;
+		float mBloomStrength;
 };
 
 void Prothesis2App::prepareSettings( Settings *settings )
@@ -92,6 +100,9 @@ void Prothesis2App::setup()
 
 	mndl::params::PInterfaceGl::load( "params.xml" );
 
+	gd.mPostProcessingParams = mndl::params::PInterfaceGl( gd.mControlWindow, "Postprocessing", Vec2i( 200, 310 ), Vec2i( 516, 342 ) );
+	gd.mPostProcessingParams.addPersistentSizeAndPosition();
+
 	mParams = mndl::params::PInterfaceGl( gd.mControlWindow, "Parameters", Vec2i( 200, 310 ), Vec2i( 16, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 	mParams.addParam( "Fps", &mFps, "", true );
@@ -101,7 +112,9 @@ void Prothesis2App::setup()
 	// output fbo
 	gl::Fbo::Format format;
 	format.setSamples( 4 );
+	format.enableColorBuffer( true, 2 );
 	mFbo = gl::Fbo( FBO_WIDTH, FBO_HEIGHT, format );
+	mFboOutputAttachment = 0;
 
 	// setup effects
 	mEffects.push_back( BlackEffect::create() );
@@ -120,11 +133,20 @@ void Prothesis2App::setup()
 	mParams.addParam( "Effect", effectNames, &mEffectIndex );
 	mParams.addSeparator();
 
+	// postprocessing filters
+	mBloom = mndl::gl::fx::KawaseBloom( mFbo.getWidth(), mFbo.getHeight() );
+	gd.mPostProcessingParams.addSeparator();
+	gd.mPostProcessingParams.addText( "Bloom" );
+	gd.mPostProcessingParams.addPersistentParam( "Bloom enable", &mBloomEnabled, false );
+	gd.mPostProcessingParams.addPersistentParam( "Bloom strength", &mBloomStrength, .8f, "min=0 max=1 step=.01" );
+
+	mFeedback = Feedback::create( mFbo.getWidth(), mFbo.getHeight() );
+
 	// OpenNI
 	mKinectProgress = "Connecting...";
 	mParams.addText( "Kinect" );
 	mParams.addParam( "Kinect progress", &mKinectProgress, "", true );
-//#define USE_KINECT_RECORDING
+#define USE_KINECT_RECORDING
 #ifdef USE_KINECT_RECORDING
 	fs::path path = getAppPath();
 #ifdef CINDER_MAC
@@ -189,15 +211,44 @@ void Prothesis2App::drawOutput()
 	mEffects[ mEffectIndex ]->draw();
 	mFbo.unbindFramebuffer();
 
+	mFboOutputAttachment = 0;
+	if ( mBloomEnabled )
+	{
+		gl::Texture processed = mBloom.process( mFbo.getTexture( mFboOutputAttachment ), 8, mBloomStrength );
+		mFbo.bindFramebuffer();
+		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + ( mFboOutputAttachment ^ 1 ) );
+		gl::clear();
+		gl::setViewport( mFbo.getBounds() );
+		gl::setMatricesWindow( mFbo.getSize(), false );
+		gl::color( Color::white() );
+		gl::draw( processed, mFbo.getBounds() );
+		mFbo.unbindFramebuffer();
+		mFboOutputAttachment ^= 1;
+	}
+	if ( mFeedback->isEnabled() )
+	{
+		gl::Texture processed = mFeedback->process( mFbo.getTexture( mFboOutputAttachment ) );
+		mFbo.bindFramebuffer();
+		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + ( mFboOutputAttachment ^ 1 ) );
+		gl::clear();
+		gl::setViewport( mFbo.getBounds() );
+		gl::setMatricesWindow( mFbo.getSize(), false );
+		gl::color( Color::white() );
+		gl::draw( processed, mFbo.getBounds() );
+		mFbo.unbindFramebuffer();
+		mFboOutputAttachment ^= 1;
+	}
+
 	gl::setViewport( getWindowBounds() );
 	gl::setMatricesWindow( getWindowSize() );
 	gl::clear();
 	gl::color( Color::white() );
+
 	// flip fbo texture
 	gl::pushModelView();
 	gl::translate( 0.f, getWindowHeight() );
 	gl::scale( 1.f, -1.f );
-	gl::draw( mFbo.getTexture(), getWindowBounds() );
+	gl::draw( mFbo.getTexture( mFboOutputAttachment ), getWindowBounds() );
 	gl::popModelView();
 }
 
@@ -213,7 +264,7 @@ void Prothesis2App::drawControl()
 	gl::pushModelView();
 	gl::translate( 0.f, mPreviewRect.getHeight() + 2 * 16 );
 	gl::scale( 1.f, -1.f );
-	gl::draw( mFbo.getTexture(), mPreviewRect );
+	gl::draw( mFbo.getTexture( mFboOutputAttachment ), mPreviewRect );
 	gl::popModelView();
 	gl::drawString( "Preview", mPreviewRect.getUpperLeft() + Vec2f( 16, 16 ) );
 	gl::drawStrokedRect( mPreviewRect );
@@ -223,6 +274,8 @@ void Prothesis2App::drawControl()
 	{
 		(*it)->drawControl();
 	}
+
+	GlobalData::get().mPostProcessingParams.draw();
 }
 
 void Prothesis2App::resize()

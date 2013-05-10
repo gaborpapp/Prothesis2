@@ -1,11 +1,6 @@
 #pragma once
 
-#include <deque>
-#include <vector>
-
-#include "cinder/app/App.h"
 #include "cinder/gl/GlslProg.h"
-#include "cinder/gl/Vbo.h"
 #include "cinder/MayaCamUI.h"
 
 #include "Effect.h"
@@ -31,6 +26,8 @@ class RibbonEffect: public Effect
 
 	private:
 		RibbonEffect() : Effect( "Ribbon" ) {}
+
+		ci::gl::GlslProg mPhongShader;
 
 		ci::MayaCamUI mMayaCam;
 

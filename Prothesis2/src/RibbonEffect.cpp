@@ -84,6 +84,16 @@ void RibbonEffect::setup()
 	cam.setEyePoint( Vec3f( 0, 0, 0 ) );
 	cam.setCenterOfInterestPoint( Vec3f( 0, 0, 800 ) );
 	mMayaCam.setCurrentCam( cam );
+
+	try
+	{
+		mPhongShader = gl::GlslProg( app::loadResource( RES_PHONG_DIRECTIONAL_VERT ),
+									 app::loadResource( RES_PHONG_DIRECTIONAL_FRAG ) );
+	}
+	catch ( gl::GlslProgCompileExc &exc )
+	{
+		app::console() << exc.what() << std::endl;
+	}
 }
 
 void RibbonEffect::update()
@@ -160,7 +170,11 @@ void RibbonEffect::draw()
 	material.setShininess( mMaterialShininess );
 	material.apply();
 
+	if ( mPhongShader )
+		mPhongShader.bind();
 	mRibbonManager.draw( cameraDir );
+	if ( mPhongShader )
+		mPhongShader.unbind();
 
 	gl::disable( GL_LIGHTING );
 	gl::disableDepthRead();
