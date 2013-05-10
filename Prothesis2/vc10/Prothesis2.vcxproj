@@ -17,6 +17,7 @@
     <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.cpp" />
     <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidDrawerGl.cpp" />
     <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidSolver.cpp" />
+    <ClCompile Include="..\src\Feedback.cpp" />
     <ClCompile Include="..\src\FluidParticles.cpp" />
     <ClCompile Include="..\src\Prothesis2App.cpp" />
     <ClCompile Include="..\src\Ribbon.cpp" />
@@ -38,6 +39,7 @@
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidSolver.h" />
     <ClInclude Include="..\include\BlackEffect.h" />
     <ClInclude Include="..\include\Effect.h" />
+    <ClInclude Include="..\include\Feedback.h" />
     <ClInclude Include="..\include\FluidParticles.h" />
     <ClInclude Include="..\include\GlobalData.h" />
     <ClInclude Include="..\include\Resources.h" />
