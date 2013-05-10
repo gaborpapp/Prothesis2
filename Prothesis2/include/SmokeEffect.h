@@ -1,6 +1,10 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "cinder/gl/Texture.h"
+#include "cinder/Capture.h"
 
 #include "ciMsaFluidDrawerGl.h"
 #include "ciMsaFluidSolver.h"
@@ -24,10 +28,17 @@ class SmokeEffect : public Effect
 		void update();
 		void draw();
 
+		void shutdown();
+
 	private:
 		SmokeEffect() : Effect( "Smoke" ) {}
 
 		ci::gl::Texture mCaptureTexture;
+
+		// capture
+		std::vector< ci::CaptureRef > mCaptures;
+		std::vector< std::string > mDeviceNames;
+		int mCurrentCapture;
 
 		// optflow
 		bool mFlip;

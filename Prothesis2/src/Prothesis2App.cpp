@@ -146,7 +146,7 @@ void Prothesis2App::setup()
 	mKinectProgress = "Connecting...";
 	mParams.addText( "Kinect" );
 	mParams.addParam( "Kinect progress", &mKinectProgress, "", true );
-#define USE_KINECT_RECORDING
+//#define USE_KINECT_RECORDING
 #ifdef USE_KINECT_RECORDING
 	fs::path path = getAppPath();
 #ifdef CINDER_MAC

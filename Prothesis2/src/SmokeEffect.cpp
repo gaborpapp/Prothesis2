@@ -16,7 +16,44 @@ void SmokeEffect::setup()
 	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Smoke Effect", Vec2i( 270, 310 ), Vec2i( 232, 16 ) );
 	mParams.addPersistentSizeAndPosition();
 
-	mParams.addText("Optical flow");
+	// capture
+	// list out the capture devices
+	vector< ci::Capture::DeviceRef > devices( ci::Capture::getDevices() );
+
+	mDeviceNames.push_back( "Kinect" );
+	mCaptures.push_back( ci::CaptureRef() );
+
+	for ( auto deviceIt = devices.cbegin(); deviceIt != devices.cend(); ++deviceIt )
+	{
+		ci::Capture::DeviceRef device = *deviceIt;
+		string deviceName = device->getName(); // + " " + device->getUniqueId();
+
+		try
+		{
+			if ( device->checkAvailable() )
+			{
+				mCaptures.push_back( ci::Capture::create( 640, 480, device ) );
+				mDeviceNames.push_back( deviceName );
+			}
+			else
+			{
+				mCaptures.push_back( ci::CaptureRef() );
+				mDeviceNames.push_back( deviceName + " not available" );
+			}
+		}
+		catch ( ci::CaptureExc & )
+		{
+			ci::app::console() << "Unable to initialize device: " << device->getName() << endl;
+		}
+	}
+
+	mParams.addText( "Capture source" );
+	mParams.addPersistentParam( "Camera", mDeviceNames, &mCurrentCapture, 0 );
+	mParams.addSeparator();
+	if ( mCurrentCapture >= (int)mCaptures.size() )
+		mCurrentCapture = 0;
+
+	mParams.addText ( "Optical flow");
 	mParams.addPersistentParam( "Flip", &mFlip, true );
 	mParams.addPersistentParam( "Draw flow", &mDrawFlow, false );
 	mParams.addPersistentParam( "Draw fluid", &mDrawFluid, true );
@@ -73,10 +110,37 @@ void SmokeEffect::update()
 {
 	GlobalData &gd = GlobalData::get();
 
-	if ( gd.mNI && gd.mNI.isCapturing() && gd.mNI.checkNewVideoFrame() )
-	{
-		Surface8u captSurf( Channel8u( gd.mNI.getVideoImage() ) );
+	static int lastCapture = -1;
 
+	// capture
+	// stop and start capture devices
+	if ( lastCapture != mCurrentCapture )
+	{
+		if ( ( lastCapture >= 0 ) && mCaptures[ lastCapture ] )
+			mCaptures[ lastCapture ]->stop();
+
+		if ( mCaptures[ mCurrentCapture ] )
+			mCaptures[ mCurrentCapture ]->start();
+
+		lastCapture = mCurrentCapture;
+	}
+
+	Surface8u captSurf;
+	if ( ( mCurrentCapture == 0 ) &&
+		gd.mNI && gd.mNI.isCapturing() && gd.mNI.checkNewVideoFrame() )
+	{
+		captSurf = Surface8u( Channel8u( gd.mNI.getVideoImage() ) );
+	}
+	else
+	if ( mCaptures[ mCurrentCapture ] &&
+			mCaptures[ mCurrentCapture ]->isCapturing() &&
+			mCaptures[ mCurrentCapture ]->checkNewFrame() )
+	{
+		captSurf = Surface8u( Channel8u( mCaptures[ mCurrentCapture ]->getSurface() ) );
+	}
+
+	if ( captSurf )
+	{
 		Surface8u smallSurface( mOptFlowWidth, mOptFlowHeight, false );
 		if ( ( captSurf.getWidth() != mOptFlowWidth ) ||
 				( captSurf.getHeight() != mOptFlowHeight ) )
@@ -222,5 +286,11 @@ void SmokeEffect::draw()
 			}
 		}
 	}
+}
+
+void SmokeEffect::shutdown()
+{
+	if ( mCaptures[ mCurrentCapture ] )
+		mCaptures[ mCurrentCapture ]->stop();
 }
 
