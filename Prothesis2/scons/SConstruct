@@ -8,7 +8,8 @@ env['RESOURCES'] = ['shaders/PhongDirectional.*']
 env['APP_SOURCES'] += ['Ribbon.cpp', 'RibbonEffect.cpp', 'RibbonManager.cpp']
 env['APP_SOURCES'] += ['Feedback.cpp']
 env['RESOURCES'] = ['shaders/Feedback.*']
-env['DEBUG'] = 0
+env['APP_SOURCES'] += ['JointSpriteEffect.cpp']
+env['DEBUG'] = 1
 
 env = SConscript('../../../../blocks/MndlKit/scons/SConscript', exports = 'env')
 env = SConscript('../../../../blocks/Cinder-NI/scons/SConscript', exports = 'env')

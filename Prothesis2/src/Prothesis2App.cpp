@@ -30,9 +30,10 @@
 
 #include "BlackEffect.h"
 #include "Feedback.h"
+#include "JointSpriteEffect.h"
+#include "RibbonEffect.h"
 #include "SkelMeshEffect.h"
 #include "SmokeEffect.h"
-#include "RibbonEffect.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -118,9 +119,10 @@ void Prothesis2App::setup()
 
 	// setup effects
 	mEffects.push_back( BlackEffect::create() );
+	mEffects.push_back( JointSpriteEffect::create() );
+	mEffects.push_back( RibbonEffect::create() );
 	mEffects.push_back( SmokeEffect::create() );
 	mEffects.push_back( SkelMeshEffect::create() );
-	mEffects.push_back( RibbonEffect::create() );
 
 	vector< string > effectNames;
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
@@ -146,7 +148,7 @@ void Prothesis2App::setup()
 	mKinectProgress = "Connecting...";
 	mParams.addText( "Kinect" );
 	mParams.addParam( "Kinect progress", &mKinectProgress, "", true );
-//#define USE_KINECT_RECORDING
+#define USE_KINECT_RECORDING
 #ifdef USE_KINECT_RECORDING
 	fs::path path = getAppPath();
 #ifdef CINDER_MAC
