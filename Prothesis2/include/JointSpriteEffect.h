@@ -34,17 +34,17 @@ class JointSpriteEffect: public Effect
 
 		float mJointDisappearThr;
 
-		std::vector< ci::gl::Texture > mJointTextures;
-		std::vector< std::string > mJointTextureFilenames;
+		void loadSprites( const ci::fs::path &relativeDir );
+		std::vector< ci::gl::Texture > mSprites;
+		std::vector< std::string > mSpriteNames;
 
-		void loadJointTexture( const XnSkeletonJoint &jointId );
-
-		struct JointPosition
+		struct JointSprite
 		{
-			JointPosition() : lastSeen( -1000. ) { }
+			JointSprite() : lastSeen( -1000. ) { }
 			double lastSeen;
-			ci::Vec3f pos;
+			ci::Vec3f lastPos;
+			int spriteId;
 		};
-		std::vector< JointPosition > mLastJointPositions;
+		std::vector< JointSprite > mJointSprites;
 };
 

@@ -36,9 +36,8 @@ using namespace std;
 
 void JointSpriteEffect::setup()
 {
-	mJointTextures.resize( XN_SKEL_NUM + XN_SKEL_HEAD );
-	mJointTextureFilenames.resize( XN_SKEL_NUM + XN_SKEL_HEAD );
-	mLastJointPositions.resize( XN_SKEL_NUM + XN_SKEL_HEAD );
+	loadSprites( "JointSprites" );
+	mJointSprites.resize( XN_SKEL_NUM + XN_SKEL_HEAD );
 
 	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow,
 			"JointSprite Effect", Vec2i( 490, 310 ), Vec2i( 734, 340 ) );
@@ -62,25 +61,9 @@ void JointSpriteEffect::setup()
 	{
 		XnSkeletonJoint jointId = jointIds[ i ];
 
-		mParams.addPersistentParam( jointNames[ i ] + " filename", &mJointTextureFilenames[ jointId ], "", "", true );
-		mParams.addButton( "load " + jointNames[ i ] + " image", std::bind( &JointSpriteEffect::loadJointTexture, this, jointId ) );
-		mParams.addButton( "reset " + jointNames[ i ] + " image", [&, jointId]() {
-				mJointTextureFilenames[ jointId ] = "";
-				mJointTextures[ jointId ] = gl::Texture();
-			} );
-		mParams.addSeparator();
-
-		if ( mJointTextureFilenames[ jointId ] != "" )
-		{
-			try
-			{
-				mJointTextures[ jointId ] = gl::Texture( loadImage( mJointTextureFilenames[ jointId ] ) );
-			}
-			catch ( const ImageIoException &exc  )
-			{
-				app::console() << "Unable to load image " << mJointTextureFilenames[ jointId ] << " " << exc.what() << std::endl;
-			}
-		}
+		mParams.addPersistentParam( jointNames[ i ] + " sprite", mSpriteNames, &mJointSprites[ jointId ].spriteId, 0 );
+		if ( mJointSprites[ jointId ].spriteId >= mSpriteNames.size() )
+			mJointSprites[ jointId ].spriteId = 0;
 	}
 
 	mParams.addSeparator();
@@ -115,16 +98,16 @@ void JointSpriteEffect::draw()
 			XN_SKEL_LEFT_HIP, XN_SKEL_LEFT_KNEE, XN_SKEL_LEFT_FOOT,
 			XN_SKEL_RIGHT_HIP, XN_SKEL_RIGHT_KNEE, XN_SKEL_RIGHT_FOOT };
 
-		struct JointSprite
+		struct CurrentJointSprite
 		{
-			JointSprite( const XnSkeletonJoint &jId, const Vec3f &p ) :
+			CurrentJointSprite( const XnSkeletonJoint &jId, const Vec3f &p ) :
 				jointId( jId ), pos( p ) {}
 
 			XnSkeletonJoint jointId;
 			Vec3f pos;
-			float z;
+			float cameraZ;
 		};
-		vector < JointSprite > jointSprites;
+		vector < CurrentJointSprite > jointSprites;
 
 		double currentTime = app::getElapsedSeconds();
 		// get joint 3d coordinates
@@ -144,18 +127,18 @@ void JointSpriteEffect::draw()
 					Vec3f pos = gd.mNIUserTracker.getJoint3d( userId, jointIds[ i ], &jointConf );
 					if ( jointConf > .9f )
 					{
-						jointSprites.push_back( JointSprite( jointId, pos ) );
+						jointSprites.push_back( CurrentJointSprite( jointId, pos ) );
 						Vec3f tpos = modelview * pos;
-						jointSprites.back().z = tpos.z;
-						mLastJointPositions[ jointId ].pos = pos;
-						mLastJointPositions[ jointId ].lastSeen = currentTime;
+						jointSprites.back().cameraZ = tpos.z;
+						mJointSprites[ jointId ].lastPos = pos;
+						mJointSprites[ jointId ].lastSeen = currentTime;
 					}
 					else
-					if ( ( currentTime - mLastJointPositions[ jointId ].lastSeen ) < mJointDisappearThr )
+					if ( ( currentTime - mJointSprites[ jointId ].lastSeen ) < mJointDisappearThr )
 					{
-						jointSprites.push_back( JointSprite( jointId, mLastJointPositions[ jointId ].pos ) );
-						Vec3f tpos = modelview * mLastJointPositions[ jointId ].pos;
-						jointSprites.back().z = tpos.z;
+						jointSprites.push_back( CurrentJointSprite( jointId, mJointSprites[ jointId ].lastPos ) );
+						Vec3f tpos = modelview * mJointSprites[ jointId ].lastPos;
+						jointSprites.back().cameraZ = tpos.z;
 					}
 				}
 			}
@@ -163,14 +146,14 @@ void JointSpriteEffect::draw()
 
 		// sort and draw sprites
 		std::sort( jointSprites.begin(), jointSprites.end(),
-				[&]( const JointSprite &s0, const JointSprite &s1 )
-				{ return ( s0.z < s1.z ); } );
+				[&]( const CurrentJointSprite &s0, const CurrentJointSprite &s1 )
+				{ return ( s0.cameraZ < s1.cameraZ ); } );
 		gl::enableAlphaBlending();
 		gl::enable( GL_TEXTURE_2D );
 		gl::color( Color::white() );
 		for ( auto spriteIt = jointSprites.cbegin(); spriteIt != jointSprites.cend(); ++spriteIt )
 		{
-			gl::Texture jointTxt = mJointTextures[ spriteIt->jointId ];
+			gl::Texture jointTxt = mSprites[ mJointSprites[ spriteIt->jointId ].spriteId ];
 			if ( !jointTxt )
 				continue;
 			jointTxt.bind();
@@ -182,24 +165,33 @@ void JointSpriteEffect::draw()
 	}
 }
 
-void JointSpriteEffect::loadJointTexture( const XnSkeletonJoint &jointId )
+void JointSpriteEffect::loadSprites( const fs::path &relativeDir )
 {
-	ci::fs::path appPath( ci::app::getAppPath() );
-#ifdef CINDER_MAC
-	appPath = appPath.parent_path();
-#endif
-	ci::fs::path imagePath = ci::app::getOpenFilePath( appPath );
+	fs::path dataPath = app::getAssetPath( relativeDir );
 
-	if ( !imagePath.empty() )
+	mSprites.push_back( gl::Texture() );
+	mSpriteNames.push_back( "none" );
+
+	if ( dataPath.empty() )
 	{
-		try
+		app::console() << "Could not find sprite directory assets/" << relativeDir.string() << std::endl;
+		return;
+	}
+
+	for ( fs::directory_iterator it( dataPath ); it != fs::directory_iterator(); ++it )
+	{
+		if ( fs::is_regular_file(*it) )
 		{
-			mJointTextures[ jointId ] = gl::Texture( loadImage( imagePath ) );
-			mJointTextureFilenames[ jointId ] = imagePath.string();
-		}
-		catch ( const ImageIoException &exc  )
-		{
-			ci::app::console() << "Unable to load image " << imagePath << " " << exc.what() << std::endl;
+			try
+			{
+				gl::Texture t = loadImage( app::loadAsset( relativeDir / it->path().filename() ) );
+				mSprites.push_back( t );
+				mSpriteNames.push_back( it->path().filename().string() );
+			}
+			catch ( const ImageIoException &exc  )
+			{
+				app::console() << "Unable to load image " << it->path() << ": " << exc.what() << std::endl;
+			}
 		}
 	}
 }
