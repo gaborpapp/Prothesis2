@@ -7,7 +7,7 @@ env['APP_SOURCES'] += ['SkelMeshEffect.cpp']
 env['RESOURCES'] = ['shaders/PhongDirectional.*']
 env['APP_SOURCES'] += ['Ribbon.cpp', 'RibbonEffect.cpp', 'RibbonManager.cpp']
 env['APP_SOURCES'] += ['Feedback.cpp']
-env['RESOURCES'] = ['shaders/Feedback.*']
+env['RESOURCES'] += ['shaders/Feedback.*']
 env['APP_SOURCES'] += ['JointSpriteEffect.cpp']
 env['DEBUG'] = 1
 
