@@ -45,7 +45,7 @@ class RibbonEffect: public Effect
 
 		int mRibbonMaxLength;
 		float mRibbonWidth;
-		float mRibbonMinPointDistance;
+		double mJointDisappearanceThr;
 		float mK;
 		float mDamping;
 

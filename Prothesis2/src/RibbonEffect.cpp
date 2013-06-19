@@ -53,7 +53,7 @@ void RibbonEffect::setup()
 	mParams.addText( "Ribbon" );
 	mParams.addPersistentParam( "Ribbon length", &mRibbonMaxLength, 32, "min=10 max=1000" );
 	mParams.addPersistentParam( "Ribbon width", &mRibbonWidth, 16.0f, "min= 0.1f max=100.0 step=0.1" );
-	mParams.addPersistentParam( "Points minimum distance", &mRibbonMinPointDistance, 0.5f, "min= 0.01f max=10.0 step=0.01" );
+	mParams.addPersistentParam( "Joint disappearance threshold", &mJointDisappearanceThr, 0.5f, "min= 0.1f max=60.0 step=0.1" );
 	mParams.addSeparator();
 	mParams.addPersistentParam( "Stiffness", &mK, 0.06f, "min=0.01 max=0.2 step=0.01" );
 	mParams.addPersistentParam( "Damping", &mDamping, 0.7f, "min=0 max=0.99 step=0.01" );
@@ -117,7 +117,9 @@ void RibbonEffect::update()
 		XN_SKEL_RIGHT_SHOULDER, XN_SKEL_RIGHT_ELBOW, XN_SKEL_RIGHT_HAND,
 		XN_SKEL_LEFT_HIP, XN_SKEL_LEFT_KNEE, XN_SKEL_LEFT_FOOT,
 		XN_SKEL_RIGHT_HIP, XN_SKEL_RIGHT_KNEE, XN_SKEL_RIGHT_FOOT };
+	static double jointLastSeen[ sizeof( jointIds ) / sizeof( jointIds[ 0 ] ) ] = { 0., };
 
+	double time = app::getElapsedSeconds();
 	vector< unsigned > users = gd.mNIUserTracker.getUsers();
 	if ( !users.empty() )
 	{
@@ -129,20 +131,21 @@ void RibbonEffect::update()
 			XnSkeletonJoint jointId = jointIds[ i ];
 			float jointConf;
 			Vec3f joint3d = gd.mNIUserTracker.getJoint3d( userId, jointIds[ i ], &jointConf );
-			if ( jointConf > .9f )
+			if ( ( jointConf > .9f ) && mRibbonActive[ jointId ] )
 			{
-				// FIXME: creation and update should be separated
 				RibbonRef ribbon = mRibbonManager.createRibbon( jointId );
-				ribbon->setActive( mRibbonActive[ jointId ] );
-				ribbon->update( joint3d );
+				ribbon->addPos( joint3d );
+				jointLastSeen[ i ] = time;
 			}
 			else
-			if ( mRibbonManager.findRibbon( jointId ) != RibbonRef() )
+			if ( ( ( time - jointLastSeen[ i ] ) > mJointDisappearanceThr ) || ( !mRibbonActive[ jointId ] ) )
 			{
-				mRibbonManager.setActive( jointId, false );
+				mRibbonManager.detachRibbon( jointId );
 			}
 		}
 	}
+
+	mRibbonManager.update();
 }
 
 void RibbonEffect::draw()

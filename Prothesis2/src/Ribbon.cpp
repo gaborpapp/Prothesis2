@@ -11,17 +11,13 @@ float Ribbon::sK = 0.06f;
 float Ribbon::sDamping = 0.7f;
 float Ribbon::sMass = 1.0f;
 
-Ribbon::Ribbon() :
-	mActive( true )
+void Ribbon::addPos( const Vec3f &pos )
 {
+	mTarget = pos;
 }
 
-void Ribbon::update( const Vec3f &pos )
+void Ribbon::update()
 {
-	if( ! mActive )
-		return;
-
-	mTarget = pos;
 	if ( mLoc.empty() )
 	{
 		mPos = mTarget;
@@ -30,9 +26,16 @@ void Ribbon::update( const Vec3f &pos )
 
 	Vec3f d = mPos - mTarget; // displacement from the target
 
-	// no new point if the target is close
-	if ( ( d.lengthSquared() < .001f ) && ( !mLoc.empty() ) )
-		return;
+	if ( mState == STATE_DYING )
+	{
+		// kill the ribbon if the target is close for sMaxLength iterations
+		if ( ( d.lengthSquared() < .001f ) )
+		{
+			mTargetCloseCount++;
+			if ( mTargetCloseCount > sMaxLength )
+				mState = STATE_DEAD;
+		}
+	}
 
 	Vec3f f = -sK * d; // Hooke's law F = - k * d
 	Vec3f a = f / sMass; // acceleration, F = ma
@@ -51,9 +54,6 @@ void Ribbon::update( const Vec3f &pos )
 
 void Ribbon::draw( const ci::Vec3f &cameraDir )
 {
-	if( ! mActive )
-		return;
-
 	if( mLoc.empty() )
 		return;
 
@@ -114,20 +114,4 @@ void Ribbon::draw( const ci::Vec3f &cameraDir )
 void Ribbon::clear()
 {
 	mLoc.clear();
-}
-
-void Ribbon::setActive( bool active )
-{
-	if( mActive != active )
-	{
-		mActive = active;
-
-		if( ! mActive )
-			clear();
-	}
-}
-
-bool Ribbon::getActive() const
-{
-	return mActive;
 }

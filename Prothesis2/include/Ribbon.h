@@ -5,21 +5,20 @@
 #include "cinder/Vector.h"
 #include "mndlkit/params/PParams.h"
 
-class Ribbon;
-class RibbonManager;
-typedef std::shared_ptr< Ribbon > RibbonRef;
+typedef std::shared_ptr< class Ribbon > RibbonRef;
 
 class Ribbon
 {
 	public:
 		static RibbonRef create() { return RibbonRef( new Ribbon() ); }
 
-		void update( const ci::Vec3f &pos );
+		void addPos( const ci::Vec3f &pos );
+		void update();
 		void draw( const ci::Vec3f &cameraDir );
 		void clear();
 
-		void setActive( bool active );
-		bool getActive() const;
+		void kill() { mState = STATE_DYING; mTargetCloseCount = 0; }
+		bool isAlive() { return ( mState != STATE_DEAD ); }
 
 		static void setMaxLength( int length ) { sMaxLength = length; }
 		static void setWidth( float width ) { sWidth = width; }
@@ -28,14 +27,24 @@ class Ribbon
 		static void setMass( float mass ) { sMass = mass; }
 
 	protected:
-		Ribbon();
+		Ribbon() : mState( STATE_ALIVE )
+		{}
 
 		ci::Vec3f mTarget;
 		ci::Vec3f mPos;
 		ci::Vec3f mVel;
 		std::deque< ci::Vec3f > mLoc;
 
-		bool mActive;
+		int mState;
+		int mTargetCloseCount; // count if the target is close to the current location if dying
+
+		enum
+		{
+			STATE_ALIVE = 0,
+			STATE_DYING,
+			STATE_DEAD
+		};
+
 		static int sMaxLength;
 		static float sWidth;
 		static float sK;
