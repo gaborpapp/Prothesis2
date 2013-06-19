@@ -7,7 +7,9 @@ using namespace ci;
 
 int Ribbon::sMaxLength = 32;
 float Ribbon::sWidth = 16.f;
-float Ribbon::sMinDistance = 0.5f;
+float Ribbon::sK = 0.06f;
+float Ribbon::sDamping = 0.7f;
+float Ribbon::sMass = 1.0f;
 
 Ribbon::Ribbon() :
 	mActive( true )
@@ -19,10 +21,27 @@ void Ribbon::update( const Vec3f &pos )
 	if( ! mActive )
 		return;
 
-	if ( !mLoc.empty() && ( mLoc.back().distanceSquared( pos ) < sMinDistance ) )
+	mTarget = pos;
+	if ( mLoc.empty() )
+	{
+		mPos = mTarget;
+		mVel = Vec3f::zero();
+	}
+
+	Vec3f d = mPos - mTarget; // displacement from the target
+
+	// no new point if the target is close
+	if ( ( d.lengthSquared() < .001f ) && ( !mLoc.empty() ) )
 		return;
 
-	mLoc.push_back( pos );
+	Vec3f f = -sK * d; // Hooke's law F = - k * d
+	Vec3f a = f / sMass; // acceleration, F = ma
+
+	mVel = mVel + a;
+	mVel *= sDamping;
+	mPos += mVel;
+
+	mLoc.push_back( mPos );
 
 	while ( mLoc.size() > sMaxLength )
 	{

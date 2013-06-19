@@ -23,16 +23,23 @@ class Ribbon
 
 		static void setMaxLength( int length ) { sMaxLength = length; }
 		static void setWidth( float width ) { sWidth = width; }
-		static void setMinDistance( float dist ) { sMinDistance = dist; }
+		static void setStiffness( float k ) { sK = k; }
+		static void setDamping( float damping ) { sDamping = damping; }
+		static void setMass( float mass ) { sMass = mass; }
 
 	protected:
 		Ribbon();
 
+		ci::Vec3f mTarget;
+		ci::Vec3f mPos;
+		ci::Vec3f mVel;
 		std::deque< ci::Vec3f > mLoc;
 
 		bool mActive;
 		static int sMaxLength;
 		static float sWidth;
-		static float sMinDistance;
+		static float sK;
+		static float sDamping;
+		static float sMass;
 };
 

@@ -54,7 +54,9 @@ void RibbonEffect::setup()
 	mParams.addPersistentParam( "Ribbon length", &mRibbonMaxLength, 32, "min=10 max=1000" );
 	mParams.addPersistentParam( "Ribbon width", &mRibbonWidth, 16.0f, "min= 0.1f max=100.0 step=0.1" );
 	mParams.addPersistentParam( "Points minimum distance", &mRibbonMinPointDistance, 0.5f, "min= 0.01f max=10.0 step=0.01" );
-
+	mParams.addSeparator();
+	mParams.addPersistentParam( "Stiffness", &mK, 0.06f, "min=0.01 max=0.2 step=0.01" );
+	mParams.addPersistentParam( "Damping", &mDamping, 0.7f, "min=0 max=0.99 step=0.01" );
 	mParams.addSeparator();
 
 	vector< string > jointNames;
@@ -105,7 +107,8 @@ void RibbonEffect::update()
 	// update ribbon parameters
 	Ribbon::setMaxLength( mRibbonMaxLength );
 	Ribbon::setWidth( mRibbonWidth );
-	Ribbon::setMinDistance( mRibbonMinPointDistance );
+	Ribbon::setStiffness( mK );
+	Ribbon::setDamping( mDamping );
 
 	// this translates the params optionmenu index to the skeleton joint id, the order is important
 	const XnSkeletonJoint jointIds[] = {
