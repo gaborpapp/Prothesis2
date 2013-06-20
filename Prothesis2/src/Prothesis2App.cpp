@@ -16,11 +16,13 @@
 */
 
 #include <vector>
+#include "boost/date_time.hpp"
 
 #include "cinder/Cinder.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
+#include "cinder/ip/Flip.h"
 
 #include "mndlkit/params/PParams.h"
 #include "mndlkit/gl/fx/KawaseBloom.h"
@@ -81,6 +83,8 @@ class Prothesis2App : public AppBasic
 		bool mKinectMirrored;
 		float mKinectSmoothing;
 		void openKinect( const ci::fs::path &path = ci::fs::path() );
+
+		void takeScreenshot();
 
 		FeedbackRef mFeedback;
 		mndl::gl::fx::KawaseBloom mBloom;
@@ -165,6 +169,8 @@ void Prothesis2App::setup()
 	mParams.addPersistentParam( "Draw joints", &gd.mNIDebugJoints, false );
 	mParams.addPersistentParam( "Draw lines", &gd.mNIDebugLines, false );
 	mParams.addSeparator();
+
+	mParams.addButton( "Screenshot", std::bind( &Prothesis2App::takeScreenshot, this ) );
 
 	mndl::params::PInterfaceGl::showAllParams( true, true );
 }
@@ -283,6 +289,35 @@ void Prothesis2App::drawControl()
 	GlobalData::get().mPostProcessingParams.draw();
 }
 
+void Prothesis2App::takeScreenshot()
+{
+	Surface snapshot( mFbo.getTexture( mFboOutputAttachment ) );
+	ip::flipVertical( &snapshot );
+
+	fs::path screenshotFolder = getAppPath();
+#ifdef CINDER_MAC
+	screenshotFolder = screenshotFolder.parent_path();
+#endif
+	screenshotFolder /= "screenshots/";
+	fs::create_directory( screenshotFolder );
+
+	boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+	string timestamp = boost::posix_time::to_iso_string( now );
+
+	string filename = "snap-" + timestamp + ".png";
+	fs::path pngPath( screenshotFolder / fs::path( filename ) );
+
+	try
+	{
+		if ( !pngPath.empty() )
+			writeImage( pngPath, snapshot );
+	}
+	catch ( ... )
+	{
+		console() << "unable to save image file " << pngPath << endl;
+	}
+}
+
 void Prothesis2App::resize()
 {
 	if ( getWindow() == GlobalData::get().mControlWindow )
@@ -376,6 +411,10 @@ void Prothesis2App::keyDown( KeyEvent event )
 	{
 		case KeyEvent::KEY_f:
 			setFullScreen( !isFullScreen() );
+			break;
+
+		case KeyEvent::KEY_s:
+			takeScreenshot();
 			break;
 
 		case KeyEvent::KEY_ESCAPE:
