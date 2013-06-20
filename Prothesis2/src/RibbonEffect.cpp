@@ -28,6 +28,7 @@
 #include "Resources.h"
 
 #include "GlobalData.h"
+#include "NIDebugDraw.h"
 #include "RibbonEffect.h"
 
 using namespace boost::assign;
@@ -185,6 +186,11 @@ void RibbonEffect::draw()
 	gl::disable( GL_LIGHTING );
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
+
+	if ( GlobalData::get().mNIDebugJoints )
+		NIDebugDraw::drawJoints();
+	if ( GlobalData::get().mNIDebugLines )
+		NIDebugDraw::drawLines();
 }
 
 void RibbonEffect::drawControl()

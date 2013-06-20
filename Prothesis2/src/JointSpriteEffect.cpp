@@ -24,6 +24,7 @@
 #include "cinder/ImageIo.h"
 
 #include "GlobalData.h"
+#include "NIDebugDraw.h"
 #include "JointSpriteEffect.h"
 
 using namespace boost::assign;
@@ -163,6 +164,11 @@ void JointSpriteEffect::draw()
 		gl::disable( GL_TEXTURE_2D );
 		gl::disableAlphaBlending();
 	}
+
+	if ( GlobalData::get().mNIDebugJoints )
+		NIDebugDraw::drawJoints();
+	if ( GlobalData::get().mNIDebugLines )
+		NIDebugDraw::drawLines();
 }
 
 void JointSpriteEffect::loadSprites( const fs::path &relativeDir )

@@ -162,6 +162,9 @@ void Prothesis2App::setup()
 	mParams.addPersistentParam( "Kinect mirror", &mKinectMirrored, false );
 	mParams.addPersistentParam( "Kinect smoothing", &mKinectSmoothing, 0.7f, "min=0 max=.99 step=.1" );
 	mParams.addSeparator();
+	mParams.addPersistentParam( "Draw joints", &gd.mNIDebugJoints, false );
+	mParams.addPersistentParam( "Draw lines", &gd.mNIDebugLines, false );
+	mParams.addSeparator();
 
 	mndl::params::PInterfaceGl::showAllParams( true, true );
 }

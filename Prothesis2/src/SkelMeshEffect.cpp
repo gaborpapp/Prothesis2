@@ -28,6 +28,7 @@
 #include "Resources.h"
 
 #include "GlobalData.h"
+#include "NIDebugDraw.h"
 #include "SkelMeshEffect.h"
 
 using namespace boost::assign;
@@ -273,6 +274,11 @@ void SkelMeshEffect::draw()
 	gl::disable( GL_CULL_FACE );
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
+
+	if ( GlobalData::get().mNIDebugJoints )
+		NIDebugDraw::drawJoints();
+	if ( GlobalData::get().mNIDebugLines )
+		NIDebugDraw::drawLines();
 }
 
 void SkelMeshEffect::drawControl()

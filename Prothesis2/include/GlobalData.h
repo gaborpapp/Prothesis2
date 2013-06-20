@@ -20,6 +20,8 @@ class GlobalData
 
 		mndl::ni::OpenNI mNI;
 		mndl::ni::UserTracker mNIUserTracker;
+		bool mNIDebugJoints;
+		bool mNIDebugLines;
 
 		mndl::params::PInterfaceGl mPostProcessingParams;
 };

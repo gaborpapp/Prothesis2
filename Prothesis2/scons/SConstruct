@@ -1,7 +1,7 @@
 env = Environment()
 
 env['APP_TARGET'] = 'Prothesis2'
-env['APP_SOURCES'] = ['Prothesis2App.cpp']
+env['APP_SOURCES'] = ['Prothesis2App.cpp', 'NIDebugDraw.cpp']
 env['APP_SOURCES'] += ['SmokeEffect.cpp', 'FluidParticles.cpp']
 env['APP_SOURCES'] += ['SkelMeshEffect.cpp']
 env['RESOURCES'] = ['shaders/PhongDirectional.*']
