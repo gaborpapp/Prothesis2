@@ -20,7 +20,9 @@
     <ClCompile Include="..\src\Feedback.cpp" />
     <ClCompile Include="..\src\FluidParticles.cpp" />
     <ClCompile Include="..\src\JointSpriteEffect.cpp" />
+    <ClCompile Include="..\src\Mirror.cpp" />
     <ClCompile Include="..\src\NIDebugDraw.cpp" />
+    <ClCompile Include="..\src\NIOutline.cpp" />
     <ClCompile Include="..\src\Prothesis2App.cpp" />
     <ClCompile Include="..\src\Ribbon.cpp" />
     <ClCompile Include="..\src\RibbonEffect.cpp" />
@@ -45,7 +47,9 @@
     <ClInclude Include="..\include\FluidParticles.h" />
     <ClInclude Include="..\include\GlobalData.h" />
     <ClInclude Include="..\include\JointSpriteEffect.h" />
+    <ClInclude Include="..\include\Mirror.h" />
     <ClInclude Include="..\include\NIDebugDraw.h" />
+    <ClInclude Include="..\include\NIOutline.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\Ribbon.h" />
     <ClInclude Include="..\include\RibbonEffect.h" />
