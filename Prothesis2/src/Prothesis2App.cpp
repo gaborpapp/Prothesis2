@@ -34,6 +34,7 @@
 #include "Feedback.h"
 #include "JointSpriteEffect.h"
 #include "Mirror.h"
+#include "NIOutline.h"
 #include "RibbonEffect.h"
 #include "SkelMeshEffect.h"
 #include "SmokeEffect.h"
@@ -89,6 +90,7 @@ class Prothesis2App : public AppBasic
 
 		FeedbackRef mFeedback;
 		MirrorRef mMirror;
+		NIOutlineRef mNIOutline;
 		mndl::gl::fx::KawaseBloom mBloom;
 		bool mBloomEnabled;
 		float mBloomStrength;
@@ -169,8 +171,20 @@ void Prothesis2App::setup()
 	mParams.addPersistentParam( "Kinect mirror", &mKinectMirrored, false );
 	mParams.addPersistentParam( "Kinect smoothing", &mKinectSmoothing, 0.7f, "min=0 max=.99 step=.1" );
 	mParams.addSeparator();
+	mParams.addText( "Debug" );
 	mParams.addPersistentParam( "Draw joints", &gd.mNIDebugJoints, false );
 	mParams.addPersistentParam( "Draw lines", &gd.mNIDebugLines, false );
+
+	mNIOutline = NIOutline::create();
+	mNIOutline->resize( mFbo.getSize() );
+	mParams.addText( "Kinect outline" );
+	mParams.addPersistentParam( "Outline enabled", mNIOutline->getEnabledValueRef(), false );
+	mParams.addPersistentParam( "Outline blur", mNIOutline->getBlurValueRef(), 15.f, "min=1 max=15 step=.5" );
+	mParams.addPersistentParam( "Outline erode", mNIOutline->getErodeValueRef(), 13.f, "min=1 max=15 step=.5" );
+	mParams.addPersistentParam( "Outline dilate", mNIOutline->getDilateValueRef(), 7.f, "min=1 max=15 step=.5" );
+	mParams.addPersistentParam( "Outline threshold", mNIOutline->getThresholdValueRef(), 128, "min=1 max=254" );
+	mParams.addPersistentParam( "Outline color", mNIOutline->getOutlineColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
+	mParams.addPersistentParam( "Outline width", mNIOutline->getOutlineWidthValueRef(), 4.f, "min=0.5 max=50 step=.05" );
 	mParams.addSeparator();
 
 	mParams.addButton( "Screenshot", std::bind( &Prothesis2App::takeScreenshot, this ) );
@@ -200,6 +214,10 @@ void Prothesis2App::update()
 			gd.mNI.setMirrored( mKinectMirrored );
 		gd.mNIUserTracker.setSmoothing( mKinectSmoothing );
 	}
+
+	// update debug outline
+	if ( mNIOutline->isEnabled() )
+		mNIOutline->update();
 }
 
 void Prothesis2App::draw()
@@ -223,6 +241,11 @@ void Prothesis2App::drawOutput()
 	mFbo.bindFramebuffer();
 	gl::clear();
 	mEffects[ mEffectIndex ]->draw();
+
+	// draw debug outline
+	if ( mNIOutline->isEnabled() )
+		mNIOutline->draw();
+
 	mFbo.unbindFramebuffer();
 
 	mFboOutputAttachment = 0;
