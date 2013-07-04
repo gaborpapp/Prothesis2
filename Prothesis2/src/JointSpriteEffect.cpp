@@ -68,6 +68,10 @@ void JointSpriteEffect::setup()
 	}
 
 	mParams.addSeparator();
+	mParams.addPersistentParam( "Sprite scale X", &mSpriteScale.x, 1.f, "min=0 step=.01" );
+	mParams.addPersistentParam( "Sprite scale Y", &mSpriteScale.y, 1.f, "min=0 step=.01" );
+	mParams.addPersistentParam( "Sprite rotation", &mSpriteRotation, 0.f, "min=0 step=.5" );
+	mParams.addSeparator();
 
 	CameraPersp cam;
 	cam.setPerspective( 60, getAspectRatio(), 1, 15000 );
@@ -158,7 +162,7 @@ void JointSpriteEffect::draw()
 			if ( !jointTxt )
 				continue;
 			jointTxt.bind();
-			gl::drawBillboard( spriteIt->pos, Vec2f( jointTxt.getSize() ), 0.f, cameraRight, cameraUp );
+			gl::drawBillboard( spriteIt->pos, mSpriteScale * Vec2f( jointTxt.getSize() ), mSpriteRotation, cameraRight, cameraUp );
 			jointTxt.unbind();
 		}
 		gl::disable( GL_TEXTURE_2D );

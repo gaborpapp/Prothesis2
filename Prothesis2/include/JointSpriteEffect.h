@@ -46,5 +46,8 @@ class JointSpriteEffect: public Effect
 			int spriteId;
 		};
 		std::vector< JointSprite > mJointSprites;
+
+		ci::Vec2f mSpriteScale;
+		float mSpriteRotation;
 };
 
