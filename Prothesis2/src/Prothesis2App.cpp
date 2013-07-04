@@ -177,11 +177,14 @@ void Prothesis2App::setup()
 
 	mNIOutline = NIOutline::create();
 	mNIOutline->resize( mFbo.getSize() );
-	mParams.addText( "Kinect outline" );
-	mParams.addPersistentParam( "Outline enabled", mNIOutline->getEnabledValueRef(), false );
-	mParams.addPersistentParam( "Outline blur", mNIOutline->getBlurValueRef(), 15.f, "min=1 max=15 step=.5" );
-	mParams.addPersistentParam( "Outline erode", mNIOutline->getErodeValueRef(), 13.f, "min=1 max=15 step=.5" );
-	mParams.addPersistentParam( "Outline dilate", mNIOutline->getDilateValueRef(), 7.f, "min=1 max=15 step=.5" );
+	mParams.addText( "Kinect user mask" );
+	mParams.addPersistentParam( "Mask enabled", mNIOutline->getMaskEnabledValueRef(), false );
+	mParams.addPersistentParam( "Mask flip", mNIOutline->getFlipValueRef(), true );
+	mParams.addPersistentParam( "Mask blur", mNIOutline->getBlurValueRef(), 15.f, "min=1 max=30 step=.5" );
+	mParams.addPersistentParam( "Mask erode", mNIOutline->getErodeValueRef(), 13.f, "min=1 max=30 step=.5" );
+	mParams.addPersistentParam( "Mask dilate", mNIOutline->getDilateValueRef(), 7.f, "min=1 max=30 step=.5" );
+	mParams.addPersistentParam( "Mask color", mNIOutline->getMaskColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
+	mParams.addPersistentParam( "Outline enabled", mNIOutline->getOutlineEnabledValueRef(), false );
 	mParams.addPersistentParam( "Outline threshold", mNIOutline->getThresholdValueRef(), 128, "min=1 max=254" );
 	mParams.addPersistentParam( "Outline color", mNIOutline->getOutlineColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
 	mParams.addPersistentParam( "Outline width", mNIOutline->getOutlineWidthValueRef(), 4.f, "min=0.5 max=50 step=.05" );
@@ -216,7 +219,7 @@ void Prothesis2App::update()
 	}
 
 	// update debug outline
-	if ( mNIOutline->isEnabled() )
+	if ( mNIOutline->isEnabled() && ( mEffectIndex != 0 ) )
 		mNIOutline->update();
 }
 
@@ -243,7 +246,7 @@ void Prothesis2App::drawOutput()
 	mEffects[ mEffectIndex ]->draw();
 
 	// draw debug outline
-	if ( mNIOutline->isEnabled() )
+	if ( mNIOutline->isEnabled() && ( mEffectIndex != 0 ) )
 		mNIOutline->draw();
 
 	mFbo.unbindFramebuffer();
