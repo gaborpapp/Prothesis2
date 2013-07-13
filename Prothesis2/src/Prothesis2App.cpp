@@ -33,7 +33,7 @@
 #include "BlackEffect.h"
 #include "Feedback.h"
 #include "JointSpriteEffect.h"
-#include "Mirror.h"
+#include "Kaleidoscope.h"
 #include "NIOutline.h"
 #include "RibbonEffect.h"
 #include "SkelMeshEffect.h"
@@ -89,7 +89,7 @@ class Prothesis2App : public AppBasic
 		void takeScreenshot();
 
 		FeedbackRef mFeedback;
-		MirrorRef mMirror;
+		KaleidoscopeRef mKaleidoscope;
 		NIOutlineRef mNIOutline;
 		mndl::gl::fx::KawaseBloom mBloom;
 		bool mBloomEnabled;
@@ -144,6 +144,7 @@ void Prothesis2App::setup()
 	mParams.addSeparator();
 
 	// postprocessing filters
+	mKaleidoscope = Kaleidoscope::create( mFbo.getWidth(), mFbo.getHeight() );
 	mBloom = mndl::gl::fx::KawaseBloom( mFbo.getWidth(), mFbo.getHeight() );
 	gd.mPostProcessingParams.addSeparator();
 	gd.mPostProcessingParams.addText( "Bloom" );
@@ -151,7 +152,6 @@ void Prothesis2App::setup()
 	gd.mPostProcessingParams.addPersistentParam( "Bloom strength", &mBloomStrength, .8f, "min=0 max=1 step=.01" );
 
 	mFeedback = Feedback::create( mFbo.getWidth(), mFbo.getHeight() );
-	mMirror = Mirror::create( mFbo.getWidth(), mFbo.getHeight() );
 
 	// OpenNI
 	mKinectProgress = "Connecting...";
@@ -252,6 +252,19 @@ void Prothesis2App::drawOutput()
 	mFbo.unbindFramebuffer();
 
 	mFboOutputAttachment = 0;
+	if ( mKaleidoscope->isEnabled() )
+	{
+		gl::Texture processed = mKaleidoscope->process( mFbo.getTexture( mFboOutputAttachment ) );
+		mFbo.bindFramebuffer();
+		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + ( mFboOutputAttachment ^ 1 ) );
+		gl::clear();
+		gl::setViewport( mFbo.getBounds() );
+		gl::setMatricesWindow( mFbo.getSize(), false );
+		gl::color( Color::white() );
+		gl::draw( processed, mFbo.getBounds() );
+		mFbo.unbindFramebuffer();
+		mFboOutputAttachment ^= 1;
+	}
 	if ( mBloomEnabled )
 	{
 		gl::Texture processed = mBloom.process( mFbo.getTexture( mFboOutputAttachment ), 8, mBloomStrength );
@@ -268,19 +281,6 @@ void Prothesis2App::drawOutput()
 	if ( mFeedback->isEnabled() )
 	{
 		gl::Texture processed = mFeedback->process( mFbo.getTexture( mFboOutputAttachment ) );
-		mFbo.bindFramebuffer();
-		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + ( mFboOutputAttachment ^ 1 ) );
-		gl::clear();
-		gl::setViewport( mFbo.getBounds() );
-		gl::setMatricesWindow( mFbo.getSize(), false );
-		gl::color( Color::white() );
-		gl::draw( processed, mFbo.getBounds() );
-		mFbo.unbindFramebuffer();
-		mFboOutputAttachment ^= 1;
-	}
-	if ( mMirror->isEnabled() )
-	{
-		gl::Texture processed = mMirror->process( mFbo.getTexture( mFboOutputAttachment ) );
 		mFbo.bindFramebuffer();
 		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + ( mFboOutputAttachment ^ 1 ) );
 		gl::clear();

@@ -8,4 +8,6 @@
 #define RES_LINE_VERT CINDER_RESOURCE( ../resources/, shaders/line.vert, 132, GLSL )
 #define RES_LINE_FRAG CINDER_RESOURCE( ../resources/, shaders/line.frag, 133, GLSL )
 #define RES_LINE_GEOM CINDER_RESOURCE( ../resources/, shaders/line.geom, 134, GLSL )
+#define RES_KALEIDOSCOPE_VERT CINDER_RESOURCE( ../resources/, shaders/Kaleidoscope.vert, 135, GLSL )
+#define RES_KALEIDOSCOPE_FRAG CINDER_RESOURCE( ../resources/, shaders/Kaleidoscope.frag, 136, GLSL )
 
