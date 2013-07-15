@@ -20,6 +20,7 @@
     <ClCompile Include="..\src\Feedback.cpp" />
     <ClCompile Include="..\src\FluidParticles.cpp" />
     <ClCompile Include="..\src\JointSpriteEffect.cpp" />
+    <ClCompile Include="..\src\Kaleidoscope.cpp" />
     <ClCompile Include="..\src\Mirror.cpp" />
     <ClCompile Include="..\src\NIDebugDraw.cpp" />
     <ClCompile Include="..\src\NIOutline.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="..\include\FluidParticles.h" />
     <ClInclude Include="..\include\GlobalData.h" />
     <ClInclude Include="..\include\JointSpriteEffect.h" />
+    <ClInclude Include="..\include\Kaleidoscope.h" />
     <ClInclude Include="..\include\Mirror.h" />
     <ClInclude Include="..\include\NIDebugDraw.h" />
     <ClInclude Include="..\include\NIOutline.h" />
