@@ -29,6 +29,7 @@
 
 #include "Effect.h"
 #include "GlobalData.h"
+#include "Utils.h"
 
 #include "BlackEffect.h"
 #include "Feedback.h"
@@ -94,6 +95,10 @@ class Prothesis2App : public AppBasic
 		mndl::gl::fx::KawaseBloom mBloom;
 		bool mBloomEnabled;
 		float mBloomStrength;
+
+		void setupBackgrounds();
+		vector< gl::Texture > mBackgrounds;
+		int mBackgroundId;
 };
 
 void Prothesis2App::prepareSettings( Settings *settings )
@@ -190,6 +195,9 @@ void Prothesis2App::setup()
 	mParams.addPersistentParam( "Outline width", mNIOutline->getOutlineWidthValueRef(), 4.f, "min=0.5 max=50 step=.05" );
 	mParams.addSeparator();
 
+	setupBackgrounds();
+	mParams.addSeparator();
+
 	mParams.addButton( "Screenshot", std::bind( &Prothesis2App::takeScreenshot, this ) );
 
 	mndl::params::PInterfaceGl::showAllParams( true, true );
@@ -243,6 +251,18 @@ void Prothesis2App::drawOutput()
 {
 	mFbo.bindFramebuffer();
 	gl::clear();
+
+	// background
+	gl::setViewport( mFbo.getBounds() );
+	gl::setMatricesWindow( mFbo.getSize(), true );
+	gl::Texture bkg = mBackgrounds[ mBackgroundId ];
+	if ( bkg )
+	{
+		gl::disableDepthRead();
+		gl::disableDepthWrite();
+		gl::draw( bkg, Rectf( bkg.getBounds() ).getCenteredFit( mFbo.getBounds(), true ) );
+	}
+
 	mEffects[ mEffectIndex ]->draw();
 
 	// draw debug outline
@@ -329,6 +349,26 @@ void Prothesis2App::drawControl()
 	}
 
 	GlobalData::get().mPostProcessingParams.draw();
+}
+
+void Prothesis2App::setupBackgrounds()
+{
+	vector< pair< string, gl::Texture > > backgrounds = mndl::loadTextures( "Backgrounds" );
+
+	vector< string > textureNames;
+	textureNames.push_back( "none" );
+
+	mBackgrounds.clear();
+	mBackgrounds.push_back( gl::Texture() );
+
+	for ( auto it = backgrounds.begin(); it != backgrounds.end(); ++it )
+	{
+		textureNames.push_back( it->first );
+		mBackgrounds.push_back( it->second );
+	}
+	mParams.addPersistentParam( "Background", textureNames, &mBackgroundId, 0 );
+	if ( mBackgroundId >= mBackgrounds.size() )
+		mBackgroundId = 0;
 }
 
 void Prothesis2App::takeScreenshot()
