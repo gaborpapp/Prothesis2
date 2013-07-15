@@ -84,6 +84,9 @@
     <ClCompile Include="..\src\NIOutline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Kaleidoscope.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNI.h">
@@ -159,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\NIOutline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Kaleidoscope.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
