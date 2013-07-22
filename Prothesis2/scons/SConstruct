@@ -14,7 +14,7 @@ env['APP_SOURCES'] += ['NIOutline.cpp']
 env['RESOURCES'] += ['shaders/line.*']
 env['APP_SOURCES'] += ['JointSpriteEffect.cpp']
 env['ASSETS'] = ['JointSprites/*']
-env['ASSETS'] = ['Backgrounds/*']
+env['ASSETS'] += ['Backgrounds/*']
 env['DEBUG'] = 0
 
 env = SConscript('../../../../blocks/MndlKit/scons/SConscript', exports = 'env')
