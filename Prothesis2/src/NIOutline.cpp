@@ -174,6 +174,10 @@ void NIOutline::draw()
 			mShader.uniform( "MITER_LIMIT", .75f );
 			mShader.uniform( "THICKNESS", mOutlineWidth );
 		}
+		else
+		{
+			glLineWidth( mOutlineWidth );
+		}
 
 		for ( vector< gl::VboMesh >::const_iterator vit = mVboMeshes.begin();
 				vit != mVboMeshes.end(); ++vit )
@@ -182,6 +186,8 @@ void NIOutline::draw()
 		}
 		if ( mShader )
 			mShader.unbind();
+		else
+			glLineWidth( 1.f );
 	}
 
 	gl::disableAlphaBlending();
