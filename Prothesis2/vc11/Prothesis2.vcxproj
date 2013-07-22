@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\blocks\Cinder-NI\src\CiNI.cpp" />
+    <ClCompile Include="..\..\..\..\blocks\Cinder-NI\src\CiNIUserTracker.cpp" />
+    <ClCompile Include="..\..\..\..\blocks\MndlKit\src\mndlkit\gl\fx\KawaseBloom.cpp" />
+    <ClCompile Include="..\..\..\..\blocks\MndlKit\src\mndlkit\params\PParams.cpp" />
+    <ClCompile Include="..\blocks\msaFluid\src\ciMsaFluidDrawerGl.cpp" />
+    <ClCompile Include="..\blocks\msaFluid\src\ciMsaFluidSolver.cpp" />
+    <ClCompile Include="..\src\Feedback.cpp" />
+    <ClCompile Include="..\src\FluidParticles.cpp" />
+    <ClCompile Include="..\src\JointSpriteEffect.cpp" />
+    <ClCompile Include="..\src\Kaleidoscope.cpp" />
+    <ClCompile Include="..\src\Mirror.cpp" />
+    <ClCompile Include="..\src\NIDebugDraw.cpp" />
+    <ClCompile Include="..\src\NIOutline.cpp" />
+    <ClCompile Include="..\src\Prothesis2App.cpp" />
+    <ClCompile Include="..\src\Ribbon.cpp" />
+    <ClCompile Include="..\src\RibbonEffect.cpp" />
+    <ClCompile Include="..\src\RibbonManager.cpp" />
+    <ClCompile Include="..\src\SkelMeshEffect.cpp" />
+    <ClCompile Include="..\src\SmokeEffect.cpp" />
+    <ClCompile Include="..\src\Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\blocks\Cinder-NI\src\CiNI.h" />
+    <ClInclude Include="..\..\..\..\blocks\Cinder-NI\src\CiNIBufferManager.h" />
+    <ClInclude Include="..\..\..\..\blocks\Cinder-NI\src\CiNIUserTracker.h" />
+    <ClInclude Include="..\..\..\..\blocks\MndlKit\src\mndlkit\gl\fx\KawaseBloom.h" />
+    <ClInclude Include="..\..\..\..\blocks\MndlKit\src\mndlkit\params\PParams.h" />
+    <ClInclude Include="..\..\..\..\blocks\OpenCV\include\CinderOpenCV.h" />
+    <ClInclude Include="..\blocks\msaFluid\include\ciMsaFluid.h" />
+    <ClInclude Include="..\blocks\msaFluid\include\ciMsaFluidDrawerGl.h" />
+    <ClInclude Include="..\blocks\msaFluid\include\ciMsaFluidParticleUpdater.h" />
+    <ClInclude Include="..\blocks\msaFluid\include\ciMsaFluidSolver.h" />
+    <ClInclude Include="..\include\BlackEffect.h" />
+    <ClInclude Include="..\include\Effect.h" />
+    <ClInclude Include="..\include\Feedback.h" />
+    <ClInclude Include="..\include\FluidParticles.h" />
+    <ClInclude Include="..\include\GlobalData.h" />
+    <ClInclude Include="..\include\JointSpriteEffect.h" />
+    <ClInclude Include="..\include\Kaleidoscope.h" />
+    <ClInclude Include="..\include\Mirror.h" />
+    <ClInclude Include="..\include\NIDebugDraw.h" />
+    <ClInclude Include="..\include\NIOutline.h" />
+    <ClInclude Include="..\include\Resources.h" />
+    <ClInclude Include="..\include\Ribbon.h" />
+    <ClInclude Include="..\include\RibbonEffect.h" />
+    <ClInclude Include="..\include\RibbonManager.h" />
+    <ClInclude Include="..\include\SkelMeshEffect.h" />
+    <ClInclude Include="..\include\SmokeEffect.h" />
+    <ClInclude Include="..\include\Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{27257FEF-9BF1-4F0B-9AF5-EB38E9B5E8EF}</ProjectGuid>
+    <RootNamespace>quickTime</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\include;$(CINDER_PATH)\include;..\blocks\msaFluid\include;$(CINDER_PATH)\blocks\MndlKit\src;$(CINDER_PATH)\src\AntTweakBar;$(CINDER_PATH)\boost;$(CINDER_PATH)\blocks\OpenCV\include;$(CINDER_PATH)\blocks\Cinder-NI\src;$(OPEN_NI_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>cinder_d.lib;QTMLClient.lib;CVClient.lib;Cinder-NId.lib;openNI.lib;opencv_calib3d243d.lib;opencv_contrib243d.lib;opencv_core243d.lib;opencv_features2d243d.lib;opencv_flann243d.lib;opencv_gpu243d.lib;opencv_imgproc243d.lib;opencv_legacy243d.lib;opencv_ml243d.lib;opencv_nonfree243d.lib;opencv_objdetect243d.lib;opencv_photo243d.lib;opencv_stitching243d.lib;opencv_ts243d.lib;opencv_video243d.lib;opencv_videostab243d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CINDER_PATH)\lib;$(CINDER_PATH)\lib\msw;$(CINDER_PATH)\blocks\QuickTime\lib\msw;$(CINDER_PATH)\blocks\OpenCV\lib\vc11;$(CINDER_PATH)\blocks\Cinder-NI\lib\vc10;$(OPEN_NI_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;$(CINDER_PATH)\include;..\blocks\msaFluid\include;$(CINDER_PATH)\blocks\MndlKit\src;$(CINDER_PATH)\src\AntTweakBar;$(CINDER_PATH)\boost;$(CINDER_PATH)\blocks\OpenCV\include;$(CINDER_PATH)\blocks\Cinder-NI\src;$(OPEN_NI_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;$(CINDER_PATH)\include;..\blocks\msaFluid\include;$(CINDER_PATH)\blocks\MndlKit\src;$(CINDER_PATH)\src\AntTweakBar;$(CINDER_PATH)\boost;$(CINDER_PATH)\blocks\OpenCV\include;$(CINDER_PATH)\blocks\Cinder-NI\src;$(OPEN_NI_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>cinder.lib;QTMLClient.lib;CVClient.lib;Cinder-NI.lib;openNI.lib;opencv_calib3d243.lib;opencv_contrib243.lib;opencv_core243.lib;opencv_features2d243.lib;opencv_flann243.lib;opencv_gpu243.lib;opencv_imgproc243.lib;opencv_legacy243.lib;opencv_ml243.lib;opencv_nonfree243.lib;opencv_objdetect243.lib;opencv_photo243.lib;opencv_stitching243.lib;opencv_ts243.lib;opencv_video243.lib;opencv_videostab243.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CINDER_PATH)\lib;$(CINDER_PATH)\lib\msw;$(CINDER_PATH)\blocks\QuickTime\lib\msw;$(CINDER_PATH)\blocks\OpenCV\lib\vc11;$(CINDER_PATH)\blocks\Cinder-NI\lib\vc10;$(OPEN_NI_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;$(CINDER_PATH)\include;..\blocks\msaFluid\include;$(CINDER_PATH)\blocks\MndlKit\src;$(CINDER_PATH)\src\AntTweakBar;$(CINDER_PATH)\boost;$(CINDER_PATH)\blocks\OpenCV\include;$(CINDER_PATH)\blocks\Cinder-NI\src;$(OPEN_NI_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
