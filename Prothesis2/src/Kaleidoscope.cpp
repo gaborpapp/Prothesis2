@@ -47,18 +47,31 @@ gl::Texture Kaleidoscope::process( const ci::gl::Texture &source )
 	gl::pushMatrices();
 
 	mFbo.bindFramebuffer();
+	glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
 	gl::setViewport( mFbo.getBounds() );
 	gl::setMatricesWindow( mFbo.getSize(), false );
 
 	if ( mShader )
 	{
+		float addA = float( M_PI ) / float( mNumReflectionLines );
+		float a = mRotation;
+		Vec3f lines[ 32 ];
+		for ( int i = 0; i < mNumReflectionLines; i++ )
+		{
+			Vec2f v( math< float >::cos( a ), math< float >::sin( a ) );
+			Vec2f p( mCenter + 0.3f * v );
+			Vec2f n( -v.y, v.x );
+
+			lines[ i ] = Vec3f( n, -p.dot( n ) ); // normalized line equation
+			a += addA;
+		}
 		mShader.bind();
-		mShader.uniform( "center", mCenter );
 		mShader.uniform( "numReflectionLines", mNumReflectionLines );
-		mShader.uniform( "rotation", mRotation );
+		mShader.uniform( "lines", lines, 32 );
 		mShader.uniform( "txt", 0 );
 	}
 
+	gl::color( Color::white() );
 	gl::draw( source, mFbo.getBounds() );
 
 	if ( mShader )

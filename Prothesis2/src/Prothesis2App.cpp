@@ -250,6 +250,8 @@ void Prothesis2App::draw()
 void Prothesis2App::drawOutput()
 {
 	mFbo.bindFramebuffer();
+	glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
+
 	gl::clear();
 
 	// background
@@ -270,7 +272,6 @@ void Prothesis2App::drawOutput()
 		mNIOutline->draw();
 
 	mFbo.unbindFramebuffer();
-
 	mFboOutputAttachment = 0;
 	if ( mKaleidoscope->isEnabled() )
 	{

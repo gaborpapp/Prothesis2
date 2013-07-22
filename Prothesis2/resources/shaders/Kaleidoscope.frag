@@ -18,7 +18,7 @@
 uniform sampler2D txt;
 
 uniform int numReflectionLines;
-varying vec3 lines[ 32 ];
+uniform vec3 lines[ 32 ];
 
 //#define DEBUG 1
 
@@ -44,6 +44,7 @@ void main()
 			p -= 2. * d * lines[ i ].xy; // mirror
 		}
 	}
+
 	gl_FragColor = texture2D( txt, fract( p ) );
 }
 
