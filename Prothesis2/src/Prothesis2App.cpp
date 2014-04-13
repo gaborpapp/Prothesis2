@@ -32,6 +32,7 @@
 #include "Utils.h"
 
 #include "BlackEffect.h"
+#include "Fade.h"
 #include "Feedback.h"
 #include "JointSpriteEffect.h"
 #include "Kaleidoscope.h"
@@ -89,6 +90,7 @@ class Prothesis2App : public AppBasic
 
 		void takeScreenshot();
 
+		FadeRef mFade;
 		FeedbackRef mFeedback;
 		KaleidoscopeRef mKaleidoscope;
 		NIOutlineRef mNIOutline;
@@ -158,6 +160,7 @@ void Prothesis2App::setup()
 	gd.mPostProcessingParams->addPersistentParam( "Bloom strength", &mBloomStrength, .8f, "min=0 max=1 step=.01" );
 
 	mFeedback = Feedback::create( mFbo.getWidth(), mFbo.getHeight() );
+	mFade = Fade::create( mFbo.getWidth(), mFbo.getHeight() );
 
 	// OpenNI
 	mKinectProgress = "Connecting...";
@@ -303,6 +306,19 @@ void Prothesis2App::drawOutput()
 	if ( mFeedback->isEnabled() )
 	{
 		gl::Texture processed = mFeedback->process( mFbo.getTexture( mFboOutputAttachment ) );
+		mFbo.bindFramebuffer();
+		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + ( mFboOutputAttachment ^ 1 ) );
+		gl::clear();
+		gl::setViewport( mFbo.getBounds() );
+		gl::setMatricesWindow( mFbo.getSize(), false );
+		gl::color( Color::white() );
+		gl::draw( processed, mFbo.getBounds() );
+		mFbo.unbindFramebuffer();
+		mFboOutputAttachment ^= 1;
+	}
+	if ( mFade->isEnabled() )
+	{
+		gl::Texture processed = mFade->process( mFbo.getTexture( mFboOutputAttachment ) );
 		mFbo.bindFramebuffer();
 		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + ( mFboOutputAttachment ^ 1 ) );
 		gl::clear();
