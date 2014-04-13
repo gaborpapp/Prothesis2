@@ -33,7 +33,7 @@ class SkelMeshEffect: public Effect
 	private:
 		SkelMeshEffect() : Effect( "SkelMesh" ), mEdgeNum( 0 ) {}
 
-		mndl::params::PInterfaceGl mEdgeParams;
+		mndl::params::PInterfaceGlRef mEdgeParams;
 
 		ci::MayaCamUI mMayaCam;
 

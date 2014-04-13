@@ -40,29 +40,29 @@ void SkelMeshEffect::setup()
 {
 	mEdges.resize( MAX_EDGE_NUM );
 
-	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "SkelMesh Effect", Vec2i( 200, 310 ), Vec2i( 16, 342 ) );
-	mParams.addPersistentSizeAndPosition();
-	mParams.addPersistentParam( "Trail size", &mTrailSize, 256, "min=1 max=1024" );
-	mParams.addSeparator();
-	mParams.addPersistentParam( "Light direction", &mLightDirection, Vec3f( 1.42215264, -1.07486057, -0.842143714 ) );
-	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
-	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
-	mParams.addPersistentParam( "Light specular", &mLightSpecular, Color::white() );
-	mParams.addSeparator();
-	mParams.addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
-	mParams.addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
-	mParams.addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
-	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
-	mParams.addSeparator();
-	mParams.addPersistentParam( "Trail material ambient", &mTrailMaterialAmbient, Color::black() );
-	mParams.addPersistentParam( "Trail material diffuse", &mTrailMaterialDiffuse, Color::black() );
-	mParams.addPersistentParam( "Trail material specular", &mTrailMaterialSpecular, Color::black() );
-	mParams.addPersistentParam( "Trail material shininess", &mTrailMaterialShininess, 0.f, "min=0 max=10000 step=.5" );
-	mParams.addSeparator();
-	mParams.addButton( "Reset", [&]() { mMeshes.clear(); } );
+	mParams = mndl::params::PInterfaceGl::create( GlobalData::get().mControlWindow, "SkelMesh Effect", Vec2i( 200, 310 ), Vec2i( 16, 342 ) );
+	mParams->addPersistentSizeAndPosition();
+	mParams->addPersistentParam( "Trail size", &mTrailSize, 256, "min=1 max=1024" );
+	mParams->addSeparator();
+	mParams->addPersistentParam( "Light direction", &mLightDirection, Vec3f( 1.42215264, -1.07486057, -0.842143714 ) );
+	mParams->addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
+	mParams->addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
+	mParams->addPersistentParam( "Light specular", &mLightSpecular, Color::white() );
+	mParams->addSeparator();
+	mParams->addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
+	mParams->addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
+	mParams->addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
+	mParams->addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
+	mParams->addSeparator();
+	mParams->addPersistentParam( "Trail material ambient", &mTrailMaterialAmbient, Color::black() );
+	mParams->addPersistentParam( "Trail material diffuse", &mTrailMaterialDiffuse, Color::black() );
+	mParams->addPersistentParam( "Trail material specular", &mTrailMaterialSpecular, Color::black() );
+	mParams->addPersistentParam( "Trail material shininess", &mTrailMaterialShininess, 0.f, "min=0 max=10000 step=.5" );
+	mParams->addSeparator();
+	mParams->addButton( "Reset", [&]() { mMeshes.clear(); } );
 
-	mEdgeParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "SkelMesh Edges", Vec2i( 270, 310 ), Vec2i( 232, 342 ) );
-	mEdgeParams.addPersistentSizeAndPosition();
+	mEdgeParams = mndl::params::PInterfaceGl::create( GlobalData::get().mControlWindow, "SkelMesh Edges", Vec2i( 270, 310 ), Vec2i( 232, 342 ) );
+	mEdgeParams->addPersistentSizeAndPosition();
 
 	loadConfig( "SkelMeshConfig.xml" );
 	rebuildEdgeParams();
@@ -92,11 +92,11 @@ void SkelMeshEffect::addEdge( int edgeId )
 		"left hip", "left knee", "left foot", "right hip", "right knee", "right foot";
 
 	string edgeName = "Edge " + toString< int >( edgeId );
-	mEdgeParams.addText( edgeName );
-	mEdgeParams.addParam( edgeName + " joint 0", jointNames, &mEdges[ edgeId ].mJoint0 );
-	mEdgeParams.addParam( edgeName + " joint 1", jointNames, &mEdges[ edgeId ].mJoint1 );
-	mEdgeParams.addButton( "Remove " + edgeName, [ this, edgeId ]() { removeEdgeFromParams( edgeId ); } );
-	mEdgeParams.addSeparator();
+	mEdgeParams->addText( edgeName );
+	mEdgeParams->addParam( edgeName + " joint 0", jointNames, &mEdges[ edgeId ].mJoint0 );
+	mEdgeParams->addParam( edgeName + " joint 1", jointNames, &mEdges[ edgeId ].mJoint1 );
+	mEdgeParams->addButton( "Remove " + edgeName, [ this, edgeId ]() { removeEdgeFromParams( edgeId ); } );
+	mEdgeParams->addSeparator();
 }
 
 void SkelMeshEffect::rebuildEdgeParams()
@@ -107,11 +107,11 @@ void SkelMeshEffect::rebuildEdgeParams()
 		return;
 	}
 
-	mEdgeParams.clear();
+	mEdgeParams->clear();
 	for ( int i = 0; i < mEdgeNum; i++ )
 		addEdge( i );
 
-	mEdgeParams.addButton( "Add edge", [this]()
+	mEdgeParams->addButton( "Add edge", [this]()
 			{
 				Edge edge;
 				mEdges[ mEdgeNum ] = edge;
@@ -283,8 +283,8 @@ void SkelMeshEffect::draw()
 
 void SkelMeshEffect::drawControl()
 {
-	mParams.draw();
-	mEdgeParams.draw();
+	mParams->draw();
+	mEdgeParams->draw();
 }
 
 void SkelMeshEffect::mouseDown( MouseEvent event )

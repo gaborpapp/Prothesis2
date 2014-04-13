@@ -40,12 +40,12 @@ void JointSpriteEffect::setup()
 	loadSprites( "JointSprites" );
 	mJointSprites.resize( XN_SKEL_NUM + XN_SKEL_HEAD );
 
-	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow,
+	mParams = mndl::params::PInterfaceGl::create( GlobalData::get().mControlWindow,
 			"JointSprite Effect", Vec2i( 490, 310 ), Vec2i( 734, 340 ) );
-	mParams.addPersistentSizeAndPosition();
+	mParams->addPersistentSizeAndPosition();
 
-	mParams.addPersistentParam( "Joint disappear thr", &mJointDisappearThr, .7f, "min=0.f max=10.f step=.01" );
-	mParams.addSeparator();
+	mParams->addPersistentParam( "Joint disappear thr", &mJointDisappearThr, .7f, "min=0.f max=10.f step=.01" );
+	mParams->addSeparator();
 
 	vector< string > jointNames;
 	jointNames += "head", "neck", "torso", "left shoulder",
@@ -62,16 +62,16 @@ void JointSpriteEffect::setup()
 	{
 		XnSkeletonJoint jointId = jointIds[ i ];
 
-		mParams.addPersistentParam( jointNames[ i ] + " sprite", mSpriteNames, &mJointSprites[ jointId ].spriteId, 0 );
+		mParams->addPersistentParam( jointNames[ i ] + " sprite", mSpriteNames, &mJointSprites[ jointId ].spriteId, 0 );
 		if ( mJointSprites[ jointId ].spriteId >= mSpriteNames.size() )
 			mJointSprites[ jointId ].spriteId = 0;
 	}
 
-	mParams.addSeparator();
-	mParams.addPersistentParam( "Sprite scale X", &mSpriteScale.x, 1.f, "min=0 step=.01" );
-	mParams.addPersistentParam( "Sprite scale Y", &mSpriteScale.y, 1.f, "min=0 step=.01" );
-	mParams.addPersistentParam( "Sprite rotation", &mSpriteRotation, 0.f, "min=0 step=.5" );
-	mParams.addSeparator();
+	mParams->addSeparator();
+	mParams->addPersistentParam( "Sprite scale X", &mSpriteScale.x, 1.f, "min=0 step=.01" );
+	mParams->addPersistentParam( "Sprite scale Y", &mSpriteScale.y, 1.f, "min=0 step=.01" );
+	mParams->addPersistentParam( "Sprite rotation", &mSpriteRotation, 0.f, "min=0 step=.5" );
+	mParams->addSeparator();
 
 	CameraPersp cam;
 	cam.setPerspective( 60, getAspectRatio(), 1, 15000 );
@@ -208,7 +208,7 @@ void JointSpriteEffect::loadSprites( const fs::path &relativeDir )
 
 void JointSpriteEffect::drawControl()
 {
-	mParams.draw();
+	mParams->draw();
 }
 
 void JointSpriteEffect::mouseDown( app::MouseEvent event )

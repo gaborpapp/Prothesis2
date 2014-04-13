@@ -11,15 +11,15 @@ Kaleidoscope::Kaleidoscope( int w, int h )
 {
 	GlobalData &gd = GlobalData::get();
 
-	gd.mPostProcessingParams.addSeparator();
-	gd.mPostProcessingParams.addText( "Kaleidoscope" );
-	gd.mPostProcessingParams.addPersistentParam( "Kaleidoscope enable", &mEnabled, false );
-	gd.mPostProcessingParams.addPersistentParam( "Reflection lines", &mNumReflectionLines, 3, "min=0 max=32" );
-	gd.mPostProcessingParams.addPersistentParam( "Reflection rotation", &mRotation, 0.f, "step=.01" );
+	gd.mPostProcessingParams->addSeparator();
+	gd.mPostProcessingParams->addText( "Kaleidoscope" );
+	gd.mPostProcessingParams->addPersistentParam( "Kaleidoscope enable", &mEnabled, false );
+	gd.mPostProcessingParams->addPersistentParam( "Reflection lines", &mNumReflectionLines, 3, "min=0 max=32" );
+	gd.mPostProcessingParams->addPersistentParam( "Reflection rotation", &mRotation, 0.f, "step=.01" );
 
-	gd.mPostProcessingParams.addPersistentParam( "Kaleidoscope X", &mCenter.x, .5f,
+	gd.mPostProcessingParams->addPersistentParam( "Kaleidoscope X", &mCenter.x, .5f,
 			"min=0 max=1 step=.005 group='Kaleidoscope Center'" );
-	gd.mPostProcessingParams.addPersistentParam( "Kaleidoscope Y", &mCenter.y, .5f,
+	gd.mPostProcessingParams->addPersistentParam( "Kaleidoscope Y", &mCenter.y, .5f,
 			"min=0 max=1 step=.005 group='Kaleidoscope Center'" );
 
 	gl::Fbo::Format fboFormat;

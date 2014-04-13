@@ -38,27 +38,27 @@ using namespace std;
 
 void RibbonEffect::setup()
 {
-	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Ribbon Effect", Vec2i( 200, 310 ), Vec2i( 518, 16 ) );
-	mParams.addPersistentSizeAndPosition();
-	mParams.addPersistentParam( "Light direction", &mLightDirection, -Vec3f::zAxis() );
-	mParams.addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
-	mParams.addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
-	mParams.addPersistentParam( "Light specular", &mLightDiffuse, Color::white() );
-	mParams.addSeparator();
-	mParams.addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
-	mParams.addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
-	mParams.addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
-	mParams.addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
-	mParams.addSeparator();
+	mParams = mndl::params::PInterfaceGl::create( GlobalData::get().mControlWindow, "Ribbon Effect", Vec2i( 200, 310 ), Vec2i( 518, 16 ) );
+	mParams->addPersistentSizeAndPosition();
+	mParams->addPersistentParam( "Light direction", &mLightDirection, -Vec3f::zAxis() );
+	mParams->addPersistentParam( "Light ambient", &mLightAmbient, Color::black() );
+	mParams->addPersistentParam( "Light diffuse", &mLightDiffuse, Color::white() );
+	mParams->addPersistentParam( "Light specular", &mLightDiffuse, Color::white() );
+	mParams->addSeparator();
+	mParams->addPersistentParam( "Material ambient", &mMaterialAmbient, Color::black() );
+	mParams->addPersistentParam( "Material diffuse", &mMaterialDiffuse, Color::gray( .5f ) );
+	mParams->addPersistentParam( "Material specular", &mMaterialSpecular, Color::white() );
+	mParams->addPersistentParam( "Material shininess", &mMaterialShininess, 50.f, "min=0 max=10000 step=.5" );
+	mParams->addSeparator();
 
-	mParams.addText( "Ribbon" );
-	mParams.addPersistentParam( "Ribbon length", &mRibbonMaxLength, 32, "min=10 max=1000" );
-	mParams.addPersistentParam( "Ribbon width", &mRibbonWidth, 16.0f, "min= 0.1f max=100.0 step=0.1" );
-	mParams.addPersistentParam( "Joint disappearance threshold", &mJointDisappearanceThr, 0.5f, "min= 0.1f max=60.0 step=0.1" );
-	mParams.addSeparator();
-	mParams.addPersistentParam( "Stiffness", &mK, 0.06f, "min=0.01 max=0.2 step=0.01" );
-	mParams.addPersistentParam( "Damping", &mDamping, 0.7f, "min=0 max=0.99 step=0.01" );
-	mParams.addSeparator();
+	mParams->addText( "Ribbon" );
+	mParams->addPersistentParam( "Ribbon length", &mRibbonMaxLength, 32, "min=10 max=1000" );
+	mParams->addPersistentParam( "Ribbon width", &mRibbonWidth, 16.0f, "min= 0.1f max=100.0 step=0.1" );
+	mParams->addPersistentParam( "Joint disappearance threshold", &mJointDisappearanceThr, 0.5f, "min= 0.1f max=60.0 step=0.1" );
+	mParams->addSeparator();
+	mParams->addPersistentParam( "Stiffness", &mK, 0.06f, "min=0.01 max=0.2 step=0.01" );
+	mParams->addPersistentParam( "Damping", &mDamping, 0.7f, "min=0 max=0.99 step=0.01" );
+	mParams->addSeparator();
 
 	vector< string > jointNames;
 	jointNames += "head", "neck", "torso", "left shoulder",
@@ -76,11 +76,11 @@ void RibbonEffect::setup()
 		XnSkeletonJoint jointId = jointIds[ i ];
 		bool defaultValue = ( jointId == XN_SKEL_LEFT_HAND ) || ( jointId == XN_SKEL_RIGHT_HAND );
 
-		mParams.addPersistentParam( jointNames[ i ] + " active", &mRibbonActive[ jointId ], defaultValue );
+		mParams->addPersistentParam( jointNames[ i ] + " active", &mRibbonActive[ jointId ], defaultValue );
 	}
 
-	mParams.addSeparator();
-	mParams.addButton( "Reset", [&]() { mRibbonManager.clear(); } );
+	mParams->addSeparator();
+	mParams->addButton( "Reset", [&]() { mRibbonManager.clear(); } );
 
 	CameraPersp cam;
 	cam.setPerspective( 60, getAspectRatio(), 1, 15000 );
@@ -195,7 +195,7 @@ void RibbonEffect::draw()
 
 void RibbonEffect::drawControl()
 {
-	mParams.draw();
+	mParams->draw();
 }
 
 void RibbonEffect::mouseDown( MouseEvent event )

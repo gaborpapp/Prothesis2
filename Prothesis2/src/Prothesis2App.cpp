@@ -61,7 +61,7 @@ class Prothesis2App : public AppBasic
 		void resize();
 
 	private:
-		mndl::params::PInterfaceGl mParams;
+		mndl::params::PInterfaceGlRef mParams;
 
 		float mFps;
 		bool mVerticalSyncEnabled;
@@ -112,16 +112,17 @@ void Prothesis2App::setup()
 	gd.mOutputWindow = getWindow();
 	gd.mControlWindow = createWindow( Window::Format().size( 1250, 700 ) );
 
-	mndl::params::PInterfaceGl::load( "params.xml" );
+	fs::path settings = getAssetPath( "" ) / "params.xml";
+	mndl::params::PInterfaceGl::readSettings( loadFile( settings ) );
 
-	gd.mPostProcessingParams = mndl::params::PInterfaceGl( gd.mControlWindow, "Postprocessing", Vec2i( 200, 310 ), Vec2i( 516, 342 ) );
-	gd.mPostProcessingParams.addPersistentSizeAndPosition();
+	gd.mPostProcessingParams = mndl::params::PInterfaceGl::create( gd.mControlWindow, "Postprocessing", Vec2i( 200, 310 ), Vec2i( 516, 342 ) );
+	gd.mPostProcessingParams->addPersistentSizeAndPosition();
 
-	mParams = mndl::params::PInterfaceGl( gd.mControlWindow, "Parameters", Vec2i( 200, 310 ), Vec2i( 16, 16 ) );
-	mParams.addPersistentSizeAndPosition();
-	mParams.addParam( "Fps", &mFps, "", true );
-	mParams.addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
-	mParams.addSeparator();
+	mParams = mndl::params::PInterfaceGl::create( gd.mControlWindow, "Parameters", Vec2i( 200, 310 ), Vec2i( 16, 16 ) );
+	mParams->addPersistentSizeAndPosition();
+	mParams->addParam( "Fps", &mFps, "", true );
+	mParams->addPersistentParam( "Vertical sync", &mVerticalSyncEnabled, false );
+	mParams->addSeparator();
 
 	// output fbo
 	gl::Fbo::Format format;
@@ -145,23 +146,23 @@ void Prothesis2App::setup()
 		(*it)->setup();
 	}
 	mEffectIndex = mPrevEffectIndex = 0;
-	mParams.addParam( "Effect", effectNames, &mEffectIndex );
-	mParams.addSeparator();
+	mParams->addParam( "Effect", effectNames, &mEffectIndex );
+	mParams->addSeparator();
 
 	// postprocessing filters
 	mKaleidoscope = Kaleidoscope::create( mFbo.getWidth(), mFbo.getHeight() );
 	mBloom = mndl::gl::fx::KawaseBloom( mFbo.getWidth(), mFbo.getHeight() );
-	gd.mPostProcessingParams.addSeparator();
-	gd.mPostProcessingParams.addText( "Bloom" );
-	gd.mPostProcessingParams.addPersistentParam( "Bloom enable", &mBloomEnabled, false );
-	gd.mPostProcessingParams.addPersistentParam( "Bloom strength", &mBloomStrength, .8f, "min=0 max=1 step=.01" );
+	gd.mPostProcessingParams->addSeparator();
+	gd.mPostProcessingParams->addText( "Bloom" );
+	gd.mPostProcessingParams->addPersistentParam( "Bloom enable", &mBloomEnabled, false );
+	gd.mPostProcessingParams->addPersistentParam( "Bloom strength", &mBloomStrength, .8f, "min=0 max=1 step=.01" );
 
 	mFeedback = Feedback::create( mFbo.getWidth(), mFbo.getHeight() );
 
 	// OpenNI
 	mKinectProgress = "Connecting...";
-	mParams.addText( "Kinect" );
-	mParams.addParam( "Kinect progress", &mKinectProgress, "", true );
+	mParams->addText( "Kinect" );
+	mParams->addParam( "Kinect progress", &mKinectProgress, "", true );
 //#define USE_KINECT_RECORDING
 #ifdef USE_KINECT_RECORDING
 	fs::path path = getAppPath();
@@ -173,32 +174,32 @@ void Prothesis2App::setup()
 #else
 	mKinectThread = thread( bind( &Prothesis2App::openKinect, this, fs::path() ) );
 #endif
-	mParams.addPersistentParam( "Kinect mirror", &mKinectMirrored, false );
-	mParams.addPersistentParam( "Kinect smoothing", &mKinectSmoothing, 0.7f, "min=0 max=.99 step=.1" );
-	mParams.addSeparator();
-	mParams.addText( "Debug" );
-	mParams.addPersistentParam( "Draw joints", &gd.mNIDebugJoints, false );
-	mParams.addPersistentParam( "Draw lines", &gd.mNIDebugLines, false );
+	mParams->addPersistentParam( "Kinect mirror", &mKinectMirrored, false );
+	mParams->addPersistentParam( "Kinect smoothing", &mKinectSmoothing, 0.7f, "min=0 max=.99 step=.1" );
+	mParams->addSeparator();
+	mParams->addText( "Debug" );
+	mParams->addPersistentParam( "Draw joints", &gd.mNIDebugJoints, false );
+	mParams->addPersistentParam( "Draw lines", &gd.mNIDebugLines, false );
 
 	mNIOutline = NIOutline::create();
 	mNIOutline->resize( mFbo.getSize() );
-	mParams.addText( "Kinect user mask" );
-	mParams.addPersistentParam( "Mask enabled", mNIOutline->getMaskEnabledValueRef(), false );
-	mParams.addPersistentParam( "Mask flip", mNIOutline->getFlipValueRef(), true );
-	mParams.addPersistentParam( "Mask blur", mNIOutline->getBlurValueRef(), 15.f, "min=1 max=30 step=.5" );
-	mParams.addPersistentParam( "Mask erode", mNIOutline->getErodeValueRef(), 13.f, "min=1 max=30 step=.5" );
-	mParams.addPersistentParam( "Mask dilate", mNIOutline->getDilateValueRef(), 7.f, "min=1 max=30 step=.5" );
-	mParams.addPersistentParam( "Mask color", mNIOutline->getMaskColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
-	mParams.addPersistentParam( "Outline enabled", mNIOutline->getOutlineEnabledValueRef(), false );
-	mParams.addPersistentParam( "Outline threshold", mNIOutline->getThresholdValueRef(), 128, "min=1 max=254" );
-	mParams.addPersistentParam( "Outline color", mNIOutline->getOutlineColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
-	mParams.addPersistentParam( "Outline width", mNIOutline->getOutlineWidthValueRef(), 4.f, "min=0.5 max=50 step=.05" );
-	mParams.addSeparator();
+	mParams->addText( "Kinect user mask" );
+	mParams->addPersistentParam( "Mask enabled", mNIOutline->getMaskEnabledValueRef(), false );
+	mParams->addPersistentParam( "Mask flip", mNIOutline->getFlipValueRef(), true );
+	mParams->addPersistentParam( "Mask blur", mNIOutline->getBlurValueRef(), 15.f, "min=1 max=30 step=.5" );
+	mParams->addPersistentParam( "Mask erode", mNIOutline->getErodeValueRef(), 13.f, "min=1 max=30 step=.5" );
+	mParams->addPersistentParam( "Mask dilate", mNIOutline->getDilateValueRef(), 7.f, "min=1 max=30 step=.5" );
+	mParams->addPersistentParam( "Mask color", mNIOutline->getMaskColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
+	mParams->addPersistentParam( "Outline enabled", mNIOutline->getOutlineEnabledValueRef(), false );
+	mParams->addPersistentParam( "Outline threshold", mNIOutline->getThresholdValueRef(), 128, "min=1 max=254" );
+	mParams->addPersistentParam( "Outline color", mNIOutline->getOutlineColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
+	mParams->addPersistentParam( "Outline width", mNIOutline->getOutlineWidthValueRef(), 4.f, "min=0.5 max=50 step=.05" );
+	mParams->addSeparator();
 
 	setupBackgrounds();
-	mParams.addSeparator();
+	mParams->addSeparator();
 
-	mParams.addButton( "Screenshot", std::bind( &Prothesis2App::takeScreenshot, this ) );
+	mParams->addButton( "Screenshot", std::bind( &Prothesis2App::takeScreenshot, this ) );
 
 	mndl::params::PInterfaceGl::showAllParams( true, true );
 }
@@ -343,13 +344,13 @@ void Prothesis2App::drawControl()
 	gl::drawString( "Preview", mPreviewRect.getUpperLeft() + Vec2f( 16, 16 ) );
 	gl::drawStrokedRect( mPreviewRect );
 
-	mParams.draw();
+	mParams->draw();
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
 	{
 		(*it)->drawControl();
 	}
 
-	GlobalData::get().mPostProcessingParams.draw();
+	GlobalData::get().mPostProcessingParams->draw();
 }
 
 void Prothesis2App::setupBackgrounds()
@@ -367,7 +368,7 @@ void Prothesis2App::setupBackgrounds()
 		textureNames.push_back( it->first );
 		mBackgrounds.push_back( it->second );
 	}
-	mParams.addPersistentParam( "Background", textureNames, &mBackgroundId, 0 );
+	mParams->addPersistentParam( "Background", textureNames, &mBackgroundId, 0 );
 	if ( mBackgroundId >= mBackgrounds.size() )
 		mBackgroundId = 0;
 }
@@ -511,7 +512,9 @@ void Prothesis2App::keyDown( KeyEvent event )
 
 void Prothesis2App::shutdown()
 {
-	mndl::params::PInterfaceGl::save();
+	fs::path settings = getAssetPath( "" ) / "params.xml";
+	mndl::params::PInterfaceGl::writeSettings( writeFile( settings ) );
+
 	for ( auto it = mEffects.cbegin(); it != mEffects.cend(); ++it )
 	{
 		(*it)->shutdown();

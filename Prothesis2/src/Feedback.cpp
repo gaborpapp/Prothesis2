@@ -12,42 +12,42 @@ Feedback::Feedback( int w, int h )
 {
 	GlobalData &gd = GlobalData::get();
 
-	gd.mPostProcessingParams.addSeparator();
-	gd.mPostProcessingParams.addText( "Feedback" );
-	gd.mPostProcessingParams.addPersistentParam( "Feedback enable", &mEnabled, false );
-	gd.mPostProcessingParams.addPersistentParam( "Speed", &mSpeed, 30.f, "min=0 step=.1" );
-	gd.mPostProcessingParams.addPersistentParam( "Feed value", &mFeed, 0.95f, "min=0 max=1 step=.005" );
+	gd.mPostProcessingParams->addSeparator();
+	gd.mPostProcessingParams->addText( "Feedback" );
+	gd.mPostProcessingParams->addPersistentParam( "Feedback enable", &mEnabled, false );
+	gd.mPostProcessingParams->addPersistentParam( "Speed", &mSpeed, 30.f, "min=0 step=.1" );
+	gd.mPostProcessingParams->addPersistentParam( "Feed value", &mFeed, 0.95f, "min=0 max=1 step=.005" );
 
-	gd.mPostProcessingParams.addPersistentParam( "Amplitude X", &mExpParams[ 0 ].amplitude, -2.47f,
+	gd.mPostProcessingParams->addPersistentParam( "Amplitude X", &mExpParams[ 0 ].amplitude, -2.47f,
 			"step=.01 group='Displace X'" );
-	gd.mPostProcessingParams.addPersistentParam( "Angle start X", &mExpParams[ 0 ].start, 1.72259f,
+	gd.mPostProcessingParams->addPersistentParam( "Angle start X", &mExpParams[ 0 ].start, 1.72259f,
 			"step=.00005 group='Displace X'" );
-	gd.mPostProcessingParams.addPersistentParam( "Angle offset X", &mExpParams[ 0 ].offset, -2.08993f,
+	gd.mPostProcessingParams->addPersistentParam( "Angle offset X", &mExpParams[ 0 ].offset, -2.08993f,
 			"step=.00005 group='Displace X'" );
-	gd.mPostProcessingParams.addPersistentParam( "Increment per frame X", &mExpParams[ 0 ].addPerFrame, 0.00778f,
+	gd.mPostProcessingParams->addPersistentParam( "Increment per frame X", &mExpParams[ 0 ].addPerFrame, 0.00778f,
 			"step=.00005 group='Displace X'" );
-	gd.mPostProcessingParams.addPersistentParam( "Increment per pixel X", &mExpParams[ 0 ].addPerPixel, 0.01896f,
+	gd.mPostProcessingParams->addPersistentParam( "Increment per pixel X", &mExpParams[ 0 ].addPerPixel, 0.01896f,
 			"step=.00005 group='Displace X'" );
-	gd.mPostProcessingParams.setOptions( "Displace X", "opened=false" );
+	gd.mPostProcessingParams->setOptions( "Displace X", "opened=false" );
 
-	gd.mPostProcessingParams.addPersistentParam( "Amplitude Y", &mExpParams[ 1 ].amplitude, 3.64,
+	gd.mPostProcessingParams->addPersistentParam( "Amplitude Y", &mExpParams[ 1 ].amplitude, 3.64,
 			"step=.01 group='Displace Y'" );
-	gd.mPostProcessingParams.addPersistentParam( "Angle start Y", &mExpParams[ 1 ].start, 1.31368f,
+	gd.mPostProcessingParams->addPersistentParam( "Angle start Y", &mExpParams[ 1 ].start, 1.31368f,
 			"step=.00005 group='Displace Y'" );
-	gd.mPostProcessingParams.addPersistentParam( "Angle offset Y", &mExpParams[ 1 ].offset, -1.95066f,
+	gd.mPostProcessingParams->addPersistentParam( "Angle offset Y", &mExpParams[ 1 ].offset, -1.95066f,
 			"step=.00005 group='Displace Y'" );
-	gd.mPostProcessingParams.addPersistentParam( "Increment per frame Y", &mExpParams[ 1 ].addPerFrame, -0.01268f,
+	gd.mPostProcessingParams->addPersistentParam( "Increment per frame Y", &mExpParams[ 1 ].addPerFrame, -0.01268f,
 			"step=.00005 group='Displace Y'" );
-	gd.mPostProcessingParams.addPersistentParam( "Increment per pixel Y", &mExpParams[ 1 ].addPerPixel, 0.00997f,
+	gd.mPostProcessingParams->addPersistentParam( "Increment per pixel Y", &mExpParams[ 1 ].addPerPixel, 0.00997f,
 			"step=.00005 group='Displace Y'" );
-	gd.mPostProcessingParams.setOptions( "Displace Y", "opened=false" );
+	gd.mPostProcessingParams->setOptions( "Displace Y", "opened=false" );
 
-	gd.mPostProcessingParams.addPersistentParam( "Noise speed", &mNoiseSpeed, 3.99f, "step=.05" );
-	gd.mPostProcessingParams.addPersistentParam( "Noise scale", &mNoiseScale, 0.87f, "step=.05" );
-	gd.mPostProcessingParams.addPersistentParam( "Noise disp", &mNoiseDisp, .005f, "step=.001" );
-	gd.mPostProcessingParams.addPersistentParam( "Noise twirl", &mNoiseTwirl, 4.9f, "step=.1" );
+	gd.mPostProcessingParams->addPersistentParam( "Noise speed", &mNoiseSpeed, 3.99f, "step=.05" );
+	gd.mPostProcessingParams->addPersistentParam( "Noise scale", &mNoiseScale, 0.87f, "step=.05" );
+	gd.mPostProcessingParams->addPersistentParam( "Noise disp", &mNoiseDisp, .005f, "step=.001" );
+	gd.mPostProcessingParams->addPersistentParam( "Noise twirl", &mNoiseTwirl, 4.9f, "step=.1" );
 
-	gd.mPostProcessingParams.addButton( "Randomize feedback", std::bind( &Feedback::randomizeParams, this, 0 ) );
+	gd.mPostProcessingParams->addButton( "Randomize feedback", std::bind( &Feedback::randomizeParams, this, 0 ) );
 
 	try
 	{

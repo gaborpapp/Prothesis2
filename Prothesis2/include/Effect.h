@@ -33,7 +33,7 @@ class Effect {
 
 		virtual void update() {};
 		virtual void draw() {};
-		virtual void drawControl() { mParams.draw(); };
+		virtual void drawControl() { if ( mParams ) mParams->draw(); };
 
 		virtual void shutdown() {};
 
@@ -43,7 +43,7 @@ class Effect {
 	protected:
 		Effect( const std::string &name ) : mName( name ) {}
 
-		mndl::params::PInterfaceGl mParams;
+		mndl::params::PInterfaceGlRef mParams;
 		std::string mName;
 		ci::Vec2i mSize;
 };

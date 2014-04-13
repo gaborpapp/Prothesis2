@@ -23,6 +23,6 @@ class GlobalData
 		bool mNIDebugJoints;
 		bool mNIDebugLines;
 
-		mndl::params::PInterfaceGl mPostProcessingParams;
+		mndl::params::PInterfaceGlRef mPostProcessingParams;
 };
 

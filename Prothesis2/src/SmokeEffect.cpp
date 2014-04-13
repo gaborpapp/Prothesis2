@@ -13,8 +13,8 @@ using namespace std;
 
 void SmokeEffect::setup()
 {
-	mParams = mndl::params::PInterfaceGl( GlobalData::get().mControlWindow, "Smoke Effect", Vec2i( 270, 310 ), Vec2i( 232, 16 ) );
-	mParams.addPersistentSizeAndPosition();
+	mParams = mndl::params::PInterfaceGl::create( GlobalData::get().mControlWindow, "Smoke Effect", Vec2i( 270, 310 ), Vec2i( 232, 16 ) );
+	mParams->addPersistentSizeAndPosition();
 
 	// capture
 	// list out the capture devices
@@ -47,55 +47,55 @@ void SmokeEffect::setup()
 		}
 	}
 
-	mParams.addText( "Capture source" );
-	mParams.addPersistentParam( "Camera", mDeviceNames, &mCurrentCapture, 0 );
-	mParams.addSeparator();
+	mParams->addText( "Capture source" );
+	mParams->addPersistentParam( "Camera", mDeviceNames, &mCurrentCapture, 0 );
+	mParams->addSeparator();
 	if ( mCurrentCapture >= (int)mCaptures.size() )
 		mCurrentCapture = 0;
 
-	mParams.addText ( "Optical flow");
-	mParams.addPersistentParam( "Flip", &mFlip, true );
-	mParams.addPersistentParam( "Draw flow", &mDrawFlow, false );
-	mParams.addPersistentParam( "Draw fluid", &mDrawFluid, true );
-	mParams.addPersistentParam( "Draw capture", &mDrawCapture, true );
-	mParams.addPersistentParam( "Capture alpha", &mCaptureAlpha, .1f, "min=0 max=1 step=0.05" );
-	mParams.addPersistentParam( "Flow multiplier", &mFlowMultiplier, .105, "min=.001 max=2 step=.001" );
-	mParams.addPersistentParam( "Flow width", &mOptFlowWidth, 160, "min=20 max=640", true );
-	mParams.addPersistentParam( "Flow height", &mOptFlowHeight, 120, "min=20 max=480", true );
-	mParams.addSeparator();
+	mParams->addText ( "Optical flow");
+	mParams->addPersistentParam( "Flip", &mFlip, true );
+	mParams->addPersistentParam( "Draw flow", &mDrawFlow, false );
+	mParams->addPersistentParam( "Draw fluid", &mDrawFluid, true );
+	mParams->addPersistentParam( "Draw capture", &mDrawCapture, true );
+	mParams->addPersistentParam( "Capture alpha", &mCaptureAlpha, .1f, "min=0 max=1 step=0.05" );
+	mParams->addPersistentParam( "Flow multiplier", &mFlowMultiplier, .105, "min=.001 max=2 step=.001" );
+	mParams->addPersistentParam( "Flow width", &mOptFlowWidth, 160, "min=20 max=640", true );
+	mParams->addPersistentParam( "Flow height", &mOptFlowHeight, 120, "min=20 max=480", true );
+	mParams->addSeparator();
 
-	mParams.addText( "Particles" );
-	mParams.addPersistentParam( "Particle color", &mParticleColor, Color::white() );
-	mParams.addPersistentParam( "Particle aging", &mParticleAging, 0.97f, "min=0 max=1 step=0.001" );
-	mParams.addPersistentParam( "Particle min", &mParticleMin, 0, "min=0 max=50" );
-	mParams.addPersistentParam( "Particle max", &mParticleMax, 25, "min=0 max=50" );
-	mParams.addPersistentParam( "Velocity max", &mMaxVelocity, 7.f, "min=1 max=100" );
-	mParams.addPersistentParam( "Velocity particle multiplier", &mVelParticleMult, .57, "min=0 max=2 step=.01" );
-	mParams.addPersistentParam( "Velocity particle min", &mVelParticleMin, 1.f, "min=1 max=100 step=.5" );
-	mParams.addPersistentParam( "Velocity particle max", &mVelParticleMax, 60.f, "min=1 max=100 step=.5" );
-	mParams.addSeparator();
+	mParams->addText( "Particles" );
+	mParams->addPersistentParam( "Particle color", &mParticleColor, Color::white() );
+	mParams->addPersistentParam( "Particle aging", &mParticleAging, 0.97f, "min=0 max=1 step=0.001" );
+	mParams->addPersistentParam( "Particle min", &mParticleMin, 0, "min=0 max=50" );
+	mParams->addPersistentParam( "Particle max", &mParticleMax, 25, "min=0 max=50" );
+	mParams->addPersistentParam( "Velocity max", &mMaxVelocity, 7.f, "min=1 max=100" );
+	mParams->addPersistentParam( "Velocity particle multiplier", &mVelParticleMult, .57, "min=0 max=2 step=.01" );
+	mParams->addPersistentParam( "Velocity particle min", &mVelParticleMin, 1.f, "min=1 max=100 step=.5" );
+	mParams->addPersistentParam( "Velocity particle max", &mVelParticleMax, 60.f, "min=1 max=100 step=.5" );
+	mParams->addSeparator();
 
 	// fluid
-	mParams.addText("Fluid");
-	mParams.addPersistentParam( "Fluid width", &mFluidWidth, 160, "min=16 max=512", true );
-	mParams.addPersistentParam( "Fluid height", &mFluidHeight, 120, "min=16 max=512", true );
-	mParams.addPersistentParam( "Fade speed", &mFluidFadeSpeed, 0.012f, "min=0 max=1 step=0.0005" );
-	mParams.addPersistentParam( "Viscosity", &mFluidViscosity, 0.00003f, "min=0 max=1 step=0.00001" );
-	mParams.addPersistentParam( "Delta t", &mFluidDeltaT, 0.4f, "min=0 max=10 step=0.05" );
-	mParams.addPersistentParam( "Vorticity confinement", &mFluidVorticityConfinement, false );
-	mParams.addPersistentParam( "Wrap x", &mFluidWrapX, false );
-	mParams.addPersistentParam( "Wrap y", &mFluidWrapY, false );
-	mParams.addPersistentParam( "Fluid color", &mFluidColor, Color( 1.f, 0.05f, 0.01f ) );
-	mParams.addPersistentParam( "Backgroudn color", &mBackgroundColor, Color::black() );
-	mParams.addPersistentParam( "Fluid velocity mult", &mFluidVelocityMult, 10.f, "min=1 max=50 step=0.5" );
-	mParams.addPersistentParam( "Fluid color mult", &mFluidColorMult, .5f, "min=0.05 max=10 step=0.05" );
+	mParams->addText("Fluid");
+	mParams->addPersistentParam( "Fluid width", &mFluidWidth, 160, "min=16 max=512", true );
+	mParams->addPersistentParam( "Fluid height", &mFluidHeight, 120, "min=16 max=512", true );
+	mParams->addPersistentParam( "Fade speed", &mFluidFadeSpeed, 0.012f, "min=0 max=1 step=0.0005" );
+	mParams->addPersistentParam( "Viscosity", &mFluidViscosity, 0.00003f, "min=0 max=1 step=0.00001" );
+	mParams->addPersistentParam( "Delta t", &mFluidDeltaT, 0.4f, "min=0 max=10 step=0.05" );
+	mParams->addPersistentParam( "Vorticity confinement", &mFluidVorticityConfinement, false );
+	mParams->addPersistentParam( "Wrap x", &mFluidWrapX, false );
+	mParams->addPersistentParam( "Wrap y", &mFluidWrapY, false );
+	mParams->addPersistentParam( "Fluid color", &mFluidColor, Color( 1.f, 0.05f, 0.01f ) );
+	mParams->addPersistentParam( "Backgroudn color", &mBackgroundColor, Color::black() );
+	mParams->addPersistentParam( "Fluid velocity mult", &mFluidVelocityMult, 10.f, "min=1 max=50 step=0.5" );
+	mParams->addPersistentParam( "Fluid color mult", &mFluidColorMult, .5f, "min=0.05 max=10 step=0.05" );
 
 	mFluidSolver.setup( mFluidWidth, mFluidHeight );
 	mFluidSolver.enableRGB( false );
 	mFluidSolver.setColorDiffusion( 0 );
 	mFluidDrawer.enableAlpha( true );
 	mFluidDrawer.setup( &mFluidSolver );
-	mParams.addButton( "Reset fluid", [&]() { mFluidSolver.reset(); } );
+	mParams->addButton( "Reset fluid", [&]() { mFluidSolver.reset(); } );
 
 	mParticles.setFluidSolver( &mFluidSolver );
 	mParticles.setWindowSize( getSize() );
