@@ -22,6 +22,7 @@ class NIOutline
 		bool isEnabled() const { return mOutlineEnabled || mMaskEnabled; }
 
 		bool *getMaskEnabledValueRef() { return &mMaskEnabled; }
+		bool *getMultipleMasksEnabledValueRef() { return &mMultipleMasksEnabled; }
 		bool *getOutlineEnabledValueRef() { return &mOutlineEnabled; }
 		bool *getFlipValueRef() { return &mFlip; }
 		float *getBlurValueRef() { return &mBlurAmt; }
@@ -29,7 +30,8 @@ class NIOutline
 		float *getDilateValueRef() { return &mDilateAmt; }
 		int *getThresholdValueRef() { return &mThres; }
 		float *getOutlineWidthValueRef() { return &mOutlineWidth; }
-		ci::ColorA *getMaskColorValueRef() { return &mMaskColor; }
+		ci::ColorA *getMaskColor0ValueRef() { return &mMaskColor0; }
+		ci::ColorA *getMaskColor1ValueRef() { return &mMaskColor1; }
 		ci::ColorA *getOutlineColorValueRef() { return &mOutlineColor; }
 
 		void resize( const ci::Vec2i &size ) { mSize = size; }
@@ -41,20 +43,22 @@ class NIOutline
 		NIOutline();
 
 		bool mMaskEnabled;
+		bool mMultipleMasksEnabled;
 		bool mOutlineEnabled;
 
 		ci::Shape2d mShape;
 		std::vector< ci::gl::VboMesh > mVboMeshes;
 		ci::gl::GlslProg mShader;
 
-		ci::gl::Texture mTexture;
+		ci::gl::Texture mTexture0, mTexture1;
 
 		bool mFlip;
 		float mBlurAmt;
 		float mErodeAmt;
 		float mDilateAmt;
 		int mThres;
-		ci::ColorA mMaskColor;
+		ci::ColorA mMaskColor0;
+		ci::ColorA mMaskColor1;
 		ci::ColorA mOutlineColor;
 		float mOutlineWidth;
 

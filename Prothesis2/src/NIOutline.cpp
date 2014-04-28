@@ -51,7 +51,10 @@ void NIOutline::update()
 		cv::erode( cvMaskFiltered, cvMaskFiltered, erodeElm, cv::Point( -1, -1 ), 1 );
 		cv::blur( cvMaskFiltered, cvMaskFiltered, cv::Size( mBlurAmt, mBlurAmt ) );
 
-		mTexture = gl::Texture( fromOcv( cvMaskFiltered ) );
+		if ( !mMultipleMasksEnabled )
+		{
+			mTexture0 = gl::Texture( fromOcv( cvMaskFiltered ) );
+		}
 		cv::threshold( cvMaskFiltered, cvMaskFiltered, mThres, 255, CV_THRESH_BINARY);
 
 		vector< vector< cv::Point > > contours;
@@ -74,6 +77,46 @@ void NIOutline::update()
 				mShape.lineTo( fromOcv( *pit ) );
 			}
 			mShape.close();
+		}
+
+		// multiple masks, only for the first two users!
+		if ( mMultipleMasksEnabled )
+		{
+			mTexture0.reset();
+			mTexture1.reset();
+
+			vector< unsigned > userIds = gd.mNIUserTracker.getUsers();
+			size_t numUsers = math< size_t >::min( userIds.size(), 2 );
+
+			for ( size_t i = 0; i < numUsers; i++ )
+			{
+				Surface8u maskSurface = gd.mNIUserTracker.getUserMask( userIds[ i ] );
+
+				cv::Mat cvMask, cvMaskFiltered;
+				cvMask = toOcv( Channel8u( maskSurface ) );
+				if ( mFlip )
+					cv::flip( cvMask, cvMask, 1 );
+				cv::blur( cvMask, cvMaskFiltered, cv::Size( mBlurAmt, mBlurAmt ) );
+
+				cv::Mat dilateElm = cv::getStructuringElement( cv::MORPH_RECT,
+						cv::Size( mDilateAmt, mDilateAmt ) );
+				cv::Mat erodeElm = cv::getStructuringElement( cv::MORPH_RECT,
+						cv::Size( mErodeAmt, mErodeAmt ) );
+				cv::erode( cvMaskFiltered, cvMaskFiltered, erodeElm, cv::Point( -1, -1 ), 1 );
+				cv::dilate( cvMaskFiltered, cvMaskFiltered, dilateElm, cv::Point( -1, -1 ), 3 );
+				cv::erode( cvMaskFiltered, cvMaskFiltered, erodeElm, cv::Point( -1, -1 ), 1 );
+				cv::blur( cvMaskFiltered, cvMaskFiltered, cv::Size( mBlurAmt, mBlurAmt ) );
+
+				// FIXME: use a texture vector if more masks are needed
+				if ( i == 0 )
+				{
+					mTexture0 = gl::Texture( fromOcv( cvMaskFiltered ) );
+				}
+				else
+				{
+					mTexture1 = gl::Texture( fromOcv( cvMaskFiltered ) );
+				}
+			}
 		}
 	}
 
@@ -153,13 +196,21 @@ void NIOutline::draw()
 
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
-	gl::enableAlphaBlending();
 
-	if ( mMaskEnabled && mTexture )
+	gl::enableAdditiveBlending();
+
+	if ( mMaskEnabled && mTexture0 )
 	{
-		gl::color( mMaskColor );
-		gl::draw( mTexture, getBounds() );
+		gl::color( mMaskColor0 );
+		gl::draw( mTexture0, getBounds() );
 	}
+	if ( mMultipleMasksEnabled && mTexture1 )
+	{
+		gl::color( mMaskColor1 );
+		gl::draw( mTexture1, getBounds() );
+	}
+
+	gl::enableAlphaBlending();
 
 	/* FIXME: VboMesh drawing does not seem to work on OS X with NVidia, see:
 	 * https://forum.libcinder.org/#Topic/23286000001631033

@@ -188,11 +188,13 @@ void Prothesis2App::setup()
 	mNIOutline->resize( mFbo.getSize() );
 	mParams->addText( "Kinect user mask" );
 	mParams->addPersistentParam( "Mask enabled", mNIOutline->getMaskEnabledValueRef(), false );
+	mParams->addPersistentParam( "Multiple masks enabled", mNIOutline->getMultipleMasksEnabledValueRef(), false );
 	mParams->addPersistentParam( "Mask flip", mNIOutline->getFlipValueRef(), true );
 	mParams->addPersistentParam( "Mask blur", mNIOutline->getBlurValueRef(), 15.f, "min=1 max=30 step=.5" );
 	mParams->addPersistentParam( "Mask erode", mNIOutline->getErodeValueRef(), 13.f, "min=1 max=30 step=.5" );
 	mParams->addPersistentParam( "Mask dilate", mNIOutline->getDilateValueRef(), 7.f, "min=1 max=30 step=.5" );
-	mParams->addPersistentParam( "Mask color", mNIOutline->getMaskColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
+	mParams->addPersistentParam( "Mask color 0", mNIOutline->getMaskColor0ValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
+	mParams->addPersistentParam( "Mask color 1", mNIOutline->getMaskColor1ValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
 	mParams->addPersistentParam( "Outline enabled", mNIOutline->getOutlineEnabledValueRef(), false );
 	mParams->addPersistentParam( "Outline threshold", mNIOutline->getThresholdValueRef(), 128, "min=1 max=254" );
 	mParams->addPersistentParam( "Outline color", mNIOutline->getOutlineColorValueRef(), ColorA( 1.f, 1.f, 1.f, .5f ) );
