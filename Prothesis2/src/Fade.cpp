@@ -22,16 +22,8 @@ Fade::Fade( int w, int h )
 	gd.mPostProcessingParams->addPersistentParam( "Fade color", &mFadeColor, Color::black(), "group=Fade" );
 	gd.mPostProcessingParams->addButton( "Fade color white", [&]() { mFadeColor = Color::white(); }, "group=Fade" );
 	gd.mPostProcessingParams->addButton( "Fade color black", [&]() { mFadeColor = Color::black(); }, "group=Fade" );
-	gd.mPostProcessingParams->addButton( "Fade out", [&]()
-			{
-			mFade = 0.f;
-			app::timeline().apply( &mFade, 1.f, mFadeDuration );
-			}, "group=Fade" );
-	gd.mPostProcessingParams->addButton( "Fade in", [&]()
-			{
-			mFade = 1.f;
-			app::timeline().apply( &mFade, 0.f, mFadeDuration );
-			}, "group=Fade" );
+	gd.mPostProcessingParams->addButton( "Fade out", [&](){ fadeOut(); }, "group=Fade" );
+	gd.mPostProcessingParams->addButton( "Fade in", [&](){ fadeIn(); }, "group=Fade" );
 	gd.mPostProcessingParams->setOptions( "", "refresh=0.05" );
 
 	gl::Fbo::Format fboFormat;
@@ -52,6 +44,18 @@ Fade::Fade( int w, int h )
 		app::console() << exc.what() << std::endl;
 	}
 
+}
+
+void Fade::fadeOut()
+{
+	mFade = 0.f;
+	app::timeline().apply( &mFade, 1.f, mFadeDuration );
+}
+
+void Fade::fadeIn()
+{
+	mFade = 1.f;
+	app::timeline().apply( &mFade, 0.f, mFadeDuration );
 }
 
 gl::Texture Fade::process( const ci::gl::Texture &source )

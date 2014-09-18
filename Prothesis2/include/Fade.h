@@ -17,6 +17,10 @@ class Fade
 
 		bool isEnabled() const { return mEnabled; }
 
+	protected:
+		void fadeOut();
+		void fadeIn();
+
 	private:
 		Fade( int w, int h );
 

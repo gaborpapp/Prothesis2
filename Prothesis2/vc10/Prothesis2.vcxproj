@@ -17,6 +17,7 @@
     <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\MndlKit\src\mndlkit\params\PParams.cpp" />
     <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidDrawerGl.cpp" />
     <ClCompile Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\src\ciMsaFluidSolver.cpp" />
+    <ClCompile Include="..\src\Fade.cpp" />
     <ClCompile Include="..\src\Feedback.cpp" />
     <ClCompile Include="..\src\FluidParticles.cpp" />
     <ClCompile Include="..\src\JointSpriteEffect.cpp" />
@@ -30,6 +31,7 @@
     <ClCompile Include="..\src\RibbonManager.cpp" />
     <ClCompile Include="..\src\SkelMeshEffect.cpp" />
     <ClCompile Include="..\src\SmokeEffect.cpp" />
+    <ClCompile Include="..\src\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\Cinder-NI\src\CiNI.h" />
@@ -44,6 +46,7 @@
     <ClInclude Include="..\..\..\..\cinder_0.8.5\blocks\msaFluid\include\ciMsaFluidSolver.h" />
     <ClInclude Include="..\include\BlackEffect.h" />
     <ClInclude Include="..\include\Effect.h" />
+    <ClInclude Include="..\include\Fade.h" />
     <ClInclude Include="..\include\Feedback.h" />
     <ClInclude Include="..\include\FluidParticles.h" />
     <ClInclude Include="..\include\GlobalData.h" />
@@ -58,6 +61,7 @@
     <ClInclude Include="..\include\RibbonManager.h" />
     <ClInclude Include="..\include\SkelMeshEffect.h" />
     <ClInclude Include="..\include\SmokeEffect.h" />
+    <ClInclude Include="..\include\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

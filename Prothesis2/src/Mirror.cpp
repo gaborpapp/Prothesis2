@@ -9,11 +9,11 @@ Mirror::Mirror( int w, int h )
 {
 	GlobalData &gd = GlobalData::get();
 
-	gd.mPostProcessingParams.addSeparator();
-	gd.mPostProcessingParams.addText( "Mirror" );
-	gd.mPostProcessingParams.addPersistentParam( "Mirror enable", &mEnabled, false );
-	gd.mPostProcessingParams.addPersistentParam( "Mirror X", &mFlipHorizontal, false );
-	gd.mPostProcessingParams.addPersistentParam( "Mirror Y", &mFlipVertical, false );
+	gd.mPostProcessingParams->addSeparator();
+	gd.mPostProcessingParams->addText( "Mirror" );
+	gd.mPostProcessingParams->addPersistentParam( "Mirror enable", &mEnabled, false );
+	gd.mPostProcessingParams->addPersistentParam( "Mirror X", &mFlipHorizontal, false );
+	gd.mPostProcessingParams->addPersistentParam( "Mirror Y", &mFlipVertical, false );
 
 	gl::Fbo::Format fboFormat;
 	fboFormat.enableDepthBuffer( false );
